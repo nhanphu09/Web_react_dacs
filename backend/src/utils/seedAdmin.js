@@ -1,0 +1,2 @@
+import User from "../models/User.js";
+export const createAdminIfMissing = async ()=>{ try{ const adminEmail="admin@example.com"; const exists = await User.findOne({ email: adminEmail }); if(!exists){ await User.create({ name:"Admin", email:adminEmail, password:"123456", role:"admin" }); console.log("Seed admin created:", adminEmail);} else console.log("Admin exists"); }catch(e){ console.error(e.message);} };
