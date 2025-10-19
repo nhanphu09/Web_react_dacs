@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
 	});
 	const [loading, setLoading] = useState(false);
 
+	// *** BẮT ĐẦU SỬA HÀM LOGIN ***
 	const login = async (email, password) => {
 		setLoading(true);
 		try {
@@ -17,14 +18,19 @@ export const AuthProvider = ({ children }) => {
 			const userData = res.data;
 			setUser(userData);
 			localStorage.setItem("user", JSON.stringify(userData));
-			return true;
+
+			// Sửa ở đây: Trả về data người dùng thay vì 'true'
+			return userData;
 		} catch (err) {
 			console.error("Login failed:", err.response?.data || err.message);
-			return false;
+
+			// Sửa ở đây: Trả về 'null' thay vì 'false'
+			return null;
 		} finally {
 			setLoading(false);
 		}
 	};
+	// *** KẾT THÚC SỬA HÀM LOGIN ***
 
 	const register = async (name, email, password) => {
 		setLoading(true);

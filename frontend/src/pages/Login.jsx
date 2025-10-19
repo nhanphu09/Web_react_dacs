@@ -10,10 +10,19 @@ export default function Login() {
 
 	const submit = async (e) => {
 		e.preventDefault();
-		const ok = await login(email, password);
-		if (ok) {
+
+		const userData = await login(email, password);
+
+		// Kiểm tra 'userData' có tồn tại không
+		if (userData) {
 			alert("Login successful!");
-			navigate("/");
+
+			//Kiểm tra quyền admin để điều hướng
+			if (userData.data.isAdmin) {
+				navigate("/admin"); // Về trang Admin
+			} else {
+				navigate("/"); // Về trang Client
+			}
 		} else {
 			alert("Invalid email or password!");
 		}
