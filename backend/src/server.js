@@ -12,11 +12,11 @@ dotenv.config();
 const app = express();
 
 // ✅ Cấu hình CORS đúng thứ tự
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+//const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
 app.use(
 	cors({
-		origin: allowedOrigin,
+		origin: "http://localhost:5173",
 		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
