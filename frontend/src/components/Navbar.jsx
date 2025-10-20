@@ -16,7 +16,7 @@ export default function Navbar() {
 			{/* Logo */}
 			<div className="flex items-center space-x-2">
 				<Link to="/" className="text-2xl font-bold tracking-wide">
-					FPT<span className="text-secondary">Shop</span>
+					PKA<span className="text-secondary">Shop</span>
 				</Link>
 			</div>
 

@@ -1,30 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 
 export default function Login() {
-	const { login } = useAuth();
+	const { login, user } = useAuth();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
 
-	const submit = async (e) => {
+	// Nếu user đã đăng nhập (tồn tại trong context) => chuyển hướng ngay
+	useEffect(() => {
+		if (user) {
+			console.log("USER từ context:", user);
+
+			const isAdmin = user.isAdmin || user.role === "admin";
+			navigate(isAdmin ? "/admin" : "/");
+		}
+	}, [user, navigate]);
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		const userData = await login(email, password);
+		try {
+			const userData = await login(email, password);
 
-		// Kiểm tra 'userData' có tồn tại không
-		if (userData) {
-			alert("Login successful!");
-
-			//Kiểm tra quyền admin để điều hướng
-			if (userData.data.isAdmin) {
-				navigate("/admin"); // Về trang Admin
+			if (userData) {
+				alert("Login successful!");
+				const isAdmin = userData.isAdmin || userData.role === "admin";
+				navigate(isAdmin ? "/admin" : "/");
 			} else {
-				navigate("/"); // Về trang Client
+				alert("Invalid email or password!");
 			}
-		} else {
-			alert("Invalid email or password!");
+		} catch (error) {
+			console.error("Login error:", error);
+			alert("Login failed! Please try again.");
 		}
 	};
 
@@ -35,39 +44,37 @@ export default function Login() {
 					🔐 Login to Your Account
 				</h2>
 
-				<form onSubmit={submit} className="space-y-4">
+				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
-							Email Address
+						<label className="block text-sm font-medium text-gray-700">
+							Email
 						</label>
 						<input
 							type="email"
-							placeholder="example@gmail.com"
+							className="mt-1 w-full border rounded-lg px-3 py-2"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
-							className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
 						/>
 					</div>
 
 					<div>
-						<label className="block text-gray-700 font-medium mb-1">
+						<label className="block text-sm font-medium text-gray-700">
 							Password
 						</label>
 						<input
 							type="password"
-							placeholder="Enter your password"
+							className="mt-1 w-full border rounded-lg px-3 py-2"
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							required
-							className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
 						/>
 					</div>
 
 					<button
 						type="submit"
-						className="w-full bg-primary text-white font-semibold py-2 rounded-md hover:bg-secondary transition">
-						Log In
+						className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark">
+						Login
 					</button>
 				</form>
 

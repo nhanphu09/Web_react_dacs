@@ -10,27 +10,26 @@ export const AuthProvider = ({ children }) => {
 	});
 	const [loading, setLoading] = useState(false);
 
-	// *** BẮT ĐẦU SỬA HÀM LOGIN ***
 	const login = async (email, password) => {
 		setLoading(true);
 		try {
 			const res = await axios.post("/auth/login", { email, password });
-			const userData = res.data;
+			const { token, user } = res.data;
+
+			// Đảm bảo role có mặt ở cấp cao nhất
+			const userData = { ...user, token };
+
 			setUser(userData);
 			localStorage.setItem("user", JSON.stringify(userData));
 
-			// Sửa ở đây: Trả về data người dùng thay vì 'true'
 			return userData;
 		} catch (err) {
 			console.error("Login failed:", err.response?.data || err.message);
-
-			// Sửa ở đây: Trả về 'null' thay vì 'false'
 			return null;
 		} finally {
 			setLoading(false);
 		}
 	};
-	// *** KẾT THÚC SỬA HÀM LOGIN ***
 
 	const register = async (name, email, password) => {
 		setLoading(true);

@@ -4,7 +4,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				primary: "#e60012", // đỏ cam kiểu FPTShop
+				primary: "#e60012",
 				secondary: "#ff6600",
 			},
 		},
