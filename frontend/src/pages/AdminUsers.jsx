@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import axios from "../utils/api";
+import api from "../api/client";
 
 export default function AdminUsers() {
 	const [users, setUsers] = useState([]);
 
 	useEffect(() => {
-		axios
+		api
 			.get("/admin/users")
 			.then((r) => setUsers(r.data))
 			.catch((err) => console.error(err));
 	}, []);
 
 	const lock = async (id) => {
-		await axios.put(`/admin/users/${id}/lock`);
+		await api.put(`/admin/users/${id}/lock`);
 		setUsers(users.map((u) => (u._id === id ? { ...u, isLocked: true } : u)));
 	};
 
 	const unlock = async (id) => {
-		await axios.put(`/admin/users/${id}/unlock`);
+		await api.put(`/admin/users/${id}/unlock`);
 		setUsers(users.map((u) => (u._id === id ? { ...u, isLocked: false } : u)));
 	};
 

@@ -37,6 +37,7 @@ export const login = async (req, res) => {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
 		console.log("USER LẤY TỪ DATABASE:", user);
+		console.log("Password check:", await user.matchPassword(password));
 		if (!user || !(await user.matchPassword(password)))
 			return res.status(401).json({ message: "Invalid credentials" });
 		if (user.locked) return res.status(403).json({ message: "Account locked" });

@@ -1,6 +1,6 @@
 import { Clock, PackageCheck, Truck, XCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import axios from "../utils/api";
+import api from "../api/client";
 
 export default function Orders() {
 	const [orders, setOrders] = useState([]);
@@ -8,7 +8,7 @@ export default function Orders() {
 	useEffect(() => {
 		const fetchOrders = async () => {
 			try {
-				const res = await axios.get("/orders");
+				const res = await api.get("/orders");
 				setOrders(res.data);
 			} catch (error) {
 				console.error("Failed to fetch orders", error);

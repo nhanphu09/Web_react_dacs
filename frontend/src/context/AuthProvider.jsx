@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import axios from "../utils/api";
+import client from "../api/client";
 
 const AuthContext = createContext();
 
@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 	const login = async (email, password) => {
 		setLoading(true);
 		try {
-			const res = await axios.post("/auth/login", { email, password });
+			const res = await client.post("/auth/login", { email, password });
 			const { token, user } = res.data;
 
 			// Đảm bảo role có mặt ở cấp cao nhất
@@ -34,7 +34,11 @@ export const AuthProvider = ({ children }) => {
 	const register = async (name, email, password) => {
 		setLoading(true);
 		try {
-			const res = await axios.post("/auth/register", { name, email, password });
+			const res = await client.post("/auth/register", {
+				name,
+				email,
+				password,
+			});
 			return res.data;
 		} catch (err) {
 			console.error("Register failed:", err.response?.data || err.message);
@@ -51,7 +55,7 @@ export const AuthProvider = ({ children }) => {
 
 	const updateProfile = async (data) => {
 		try {
-			const res = await axios.put("/users/profile", data, {
+			const res = await client.put("/users/profile", data, {
 				headers: { Authorization: `Bearer ${user?.token}` },
 			});
 			setUser(res.data);

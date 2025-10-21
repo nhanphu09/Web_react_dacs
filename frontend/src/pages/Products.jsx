@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import api from "../api/client";
 import ProductCard from "../components/ProductCard";
-import axios from "../utils/api";
 
 export default function Products() {
 	const [products, setProducts] = useState([]);
@@ -18,7 +18,7 @@ export default function Products() {
 			if (brand) params.brand = brand;
 			if (minPrice) params.minPrice = minPrice;
 			if (maxPrice) params.maxPrice = maxPrice;
-			const res = await axios.get("/products", { params });
+			const res = await api.get("/products", { params });
 			setProducts(res.data);
 		} catch (err) {
 			console.error(err);

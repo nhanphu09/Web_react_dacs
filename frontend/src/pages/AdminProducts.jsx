@@ -1,13 +1,13 @@
 import { Package, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import axios from "../utils/api";
+import api from "../api/client";
 
 export default function AdminProducts() {
 	const [products, setProducts] = useState([]);
 	const [model, setModel] = useState({ title: "", price: 0, description: "" });
 
 	useEffect(() => {
-		axios
+		api
 			.get("/products")
 			.then((r) => setProducts(r.data))
 			.catch(() => {});
@@ -18,14 +18,14 @@ export default function AdminProducts() {
 			alert("Vui lòng nhập đầy đủ thông tin sản phẩm!");
 			return;
 		}
-		const r = await axios.post("/products", model);
+		const r = await api.post("/products", model);
 		setProducts([r.data, ...products]);
 		setModel({ title: "", price: 0, description: "" });
 	};
 
 	const remove = async (id) => {
 		if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
-		await axios.delete(`/products/${id}`);
+		await api.delete(`/products/${id}`);
 		setProducts(products.filter((p) => p._id !== id));
 	};
 

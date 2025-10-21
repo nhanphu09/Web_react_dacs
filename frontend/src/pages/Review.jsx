@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../utils/api";
+import api from "../api/client";
 
 export default function Review() {
 	const { id } = useParams(); // productId

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../utils/api";
+import api from "../api/client";
 
 export default function Checkout() {
 	const [address, setAddress] = useState({
@@ -37,7 +37,7 @@ export default function Checkout() {
 				totalPrice: total,
 			};
 
-			await axios.post("/orders", order);
+			await api.post("/orders", order);
 			alert("✅ Order placed successfully!");
 			localStorage.removeItem("cart");
 			navigate("/orders");

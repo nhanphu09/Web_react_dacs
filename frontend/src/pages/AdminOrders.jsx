@@ -1,6 +1,5 @@
 import { CheckCircle, Clock, Package, Truck, XCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import axios from "../utils/api";
 
 export default function AdminOrders() {
 	const [orders, setOrders] = useState([]);

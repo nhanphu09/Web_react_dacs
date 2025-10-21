@@ -1,6 +1,6 @@
 import { DollarSign, ShoppingBag, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "../utils/api";
+import api from "../api/client";
 
 export default function AdminReports() {
 	const [stats, setStats] = useState({

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "../utils/api";
+import api from "../api/client";
 
 export default function ProductDetail() {
 	const { id } = useParams();
@@ -12,7 +12,7 @@ export default function ProductDetail() {
 
 	useEffect(() => {
 		if (!id) return;
-		axios
+		api
 			.get(`/products/${id}`)
 			.then((r) => setProduct(r.data))
 			.catch(() => {});
@@ -35,14 +35,14 @@ export default function ProductDetail() {
 
 	const postReview = async () => {
 		try {
-			await axios.post(`/products/${id}/reviews`, {
+			await api.post(`/products/${id}/reviews`, {
 				rating,
 				comment,
 				userId: "client",
 				name: "You",
 			});
 			alert("Review posted successfully!");
-			const r = await axios.get(`/products/${id}`);
+			const r = await api.get(`/products/${id}`);
 			setProduct(r.data);
 			setComment("");
 		} catch (e) {
