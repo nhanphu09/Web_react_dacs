@@ -6,18 +6,18 @@ export default function AdminUsers() {
 
 	useEffect(() => {
 		api
-			.get("/admin/users")
+			.get("/users")
 			.then((r) => setUsers(r.data))
 			.catch((err) => console.error(err));
 	}, []);
 
 	const lock = async (id) => {
-		await api.put(`/admin/users/${id}/lock`);
+		await api.put(`/users/${id}/lock`);
 		setUsers(users.map((u) => (u._id === id ? { ...u, isLocked: true } : u)));
 	};
 
 	const unlock = async (id) => {
-		await api.put(`/admin/users/${id}/unlock`);
+		await api.put(`/users/${id}/unlock`);
 		setUsers(users.map((u) => (u._id === id ? { ...u, isLocked: false } : u)));
 	};
 

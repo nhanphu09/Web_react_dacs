@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
 
 export default function Profile() {
@@ -9,7 +10,7 @@ export default function Profile() {
 
 	const handleSave = async () => {
 		await updateProfile({ name, email, password: password || undefined });
-		alert("Thông tin cá nhân đã được cập nhật (nếu backend hỗ trợ).");
+		toast.success("Thông tin cá nhân đã được cập nhật!");
 		setPassword(""); // clear password sau khi lưu
 	};
 

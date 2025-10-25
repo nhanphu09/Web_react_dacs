@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import AdminLayout from "./components/AdminLayout.jsx";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminCategories from "./pages/AdminCategories";
@@ -76,50 +77,29 @@ export default function App() {
 					path="/admin"
 					element={
 						<ProtectedRoute adminOnly>
-							<AdminDashboard />
+							<AdminLayout /> {/* 1. Render layout cha */}
 						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/admin/products"
-					element={
-						<ProtectedRoute adminOnly>
-							<AdminProducts />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/admin/orders"
-					element={
-						<ProtectedRoute adminOnly>
-							<AdminOrders />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/admin/users"
-					element={
-						<ProtectedRoute adminOnly>
-							<AdminUsers />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/admin/reports"
-					element={
-						<ProtectedRoute adminOnly>
-							<AdminReports />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/admin/categories"
-					element={
-						<ProtectedRoute adminOnly>
-							<AdminCategories />
-						</ProtectedRoute>
-					}
-				/>
+					}>
+					{/* 2. Đây là các trang con sẽ render bên trong <Outlet /> */}
+
+					{/* /admin (index = true nghĩa là trang mặc định) */}
+					<Route index element={<AdminDashboard />} />
+
+					{/* /admin/products */}
+					<Route path="products" element={<AdminProducts />} />
+
+					{/* /admin/orders */}
+					<Route path="orders" element={<AdminOrders />} />
+
+					{/* /admin/users */}
+					<Route path="users" element={<AdminUsers />} />
+
+					{/* /admin/reports */}
+					<Route path="reports" element={<AdminReports />} />
+
+					{/* /admin/categories */}
+					<Route path="categories" element={<AdminCategories />} />
+				</Route>
 			</Routes>
 		</>
 	);

@@ -6,7 +6,8 @@ export default function AdminDashboard() {
 				📊 Admin Dashboard
 			</h2>
 			<p className="text-gray-600">
-				Welcome, Admin! Use the navigation above to manage:
+				Chào mừng Admin! Sử dụng thanh điều hướng bên cạnh để quản lý:{" "}
+				{/* 🟢 SỬA */}
 			</p>
 			<ul className="list-disc list-inside text-gray-700 mt-2">
 				<li>🛍️ Products</li>

@@ -8,20 +8,18 @@ export default function AdminCategories() {
 	const [newBrand, setNewBrand] = useState("");
 
 	useEffect(() => {
-		api
-			.get("/admin/categories")
-			.then((res) => setCategories(res.data.categories));
-		api.get("/admin/brands").then((res) => setBrands(res.data.brands));
+		api.get("/categories").then((res) => setCategories(res.data));
+		api.get("/brands").then((res) => setBrands(res.data));
 	}, []);
 
 	const addCategory = async () => {
-		const res = await api.post("/admin/categories", { name: newCat });
+		const res = await api.post("/categories", { name: newCat });
 		setCategories([...categories, res.data]);
 		setNewCat("");
 	};
 
 	const addBrand = async () => {
-		const res = await api.post("/admin/brands", { name: newBrand });
+		const res = await api.post("/brands", { name: newBrand });
 		setBrands([...brands, res.data]);
 		setNewBrand("");
 	};

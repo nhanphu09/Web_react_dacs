@@ -1,26 +1,54 @@
 import { Package, Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import api from "../api/client";
 
 export default function AdminProducts() {
 	const [products, setProducts] = useState([]);
-	const [model, setModel] = useState({ title: "", price: 0, description: "" });
+	const [model, setModel] = useState({
+		title: "",
+		price: 0,
+		description: "",
+		category: "",
+		brand: "",
+		image: "",
+	});
+	const [categories, setCategories] = useState([]); // 🟢 THÊM
+	const [brands, setBrands] = useState([]); // 🟢 THÊM
 
 	useEffect(() => {
-		api
-			.get("/products")
-			.then((r) => setProducts(r.data))
-			.catch(() => {});
+		const fetchData = async () => {
+			try {
+				const [prodRes, catRes, brandRes] = await Promise.all([
+					api.get("/products"),
+					api.get("/categories"), // Đã có từ Giai đoạn 3
+					api.get("/brands"), // Đã có từ Giai đoạn 3
+				]);
+				setProducts(prodRes.data.products);
+				setCategories(catRes.data);
+				setBrands(brandRes.data);
+			} catch (err) {
+				console.error("Failed to fetch initial data", err);
+			}
+		};
+		fetchData();
 	}, []);
 
 	const create = async () => {
 		if (!model.title || model.price <= 0) {
-			alert("Vui lòng nhập đầy đủ thông tin sản phẩm!");
+			toast.warn("Vui lòng nhập đầy đủ thông tin sản phẩm!");
 			return;
 		}
 		const r = await api.post("/products", model);
 		setProducts([r.data, ...products]);
-		setModel({ title: "", price: 0, description: "" });
+		setModel({
+			title: "",
+			price: 0,
+			description: "",
+			category: "",
+			brand: "",
+			image: "",
+		}); // 🟢 SỬA
 	};
 
 	const remove = async (id) => {
@@ -43,7 +71,7 @@ export default function AdminProducts() {
 					<Plus className="text-green-600" /> Thêm sản phẩm mới
 				</h3>
 
-				<div className="grid sm:grid-cols-3 gap-4">
+				<div className="grid sm:grid-cols-6 gap-4">
 					<input
 						type="text"
 						placeholder="Tên sản phẩm"
@@ -69,6 +97,35 @@ export default function AdminProducts() {
 						}
 						className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
 					/>
+					<input
+						type="text"
+						placeholder="Image URL"
+						value={model.image}
+						onChange={(e) => setModel({ ...model, image: e.target.value })}
+						className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+					/>
+					<select
+						value={model.category}
+						onChange={(e) => setModel({ ...model, category: e.target.value })}
+						className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none bg-white">
+						<option value="">-- Chọn Danh mục --</option>
+						{categories.map((c) => (
+							<option key={c._id} value={c._id}>
+								{c.name}
+							</option>
+						))}
+					</select>
+					<select
+						value={model.brand}
+						onChange={(e) => setModel({ ...model, brand: e.target.value })}
+						className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none bg-white">
+						<option value="">-- Chọn Thương Hiệu --</option>
+						{brands.map((b) => (
+							<option key={b._id} value={b._id}>
+								{b.name}
+							</option>
+						))}
+					</select>
 				</div>
 
 				<div className="mt-4 flex justify-end">

@@ -1,5 +1,7 @@
 import { CheckCircle, Clock, Package, Truck, XCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import api from "../api/client";
 
 export default function AdminOrders() {
 	const [orders, setOrders] = useState([]);
@@ -7,7 +9,7 @@ export default function AdminOrders() {
 	useEffect(() => {
 		const fetchOrders = async () => {
 			try {
-				const res = await axios.get("/orders");
+				const res = await api.get("/orders");
 				setOrders(res.data);
 			} catch (error) {
 				console.error("Failed to fetch orders", error);
@@ -18,12 +20,12 @@ export default function AdminOrders() {
 
 	const updateStatus = async (id, status) => {
 		try {
-			await axios.put(`/orders/${id}/status`, { status });
+			await api.put(`/orders/${id}/status`, { status });
 			setOrders((prev) =>
 				prev.map((o) => (o._id === id ? { ...o, status } : o))
 			);
 		} catch (error) {
-			alert("Cập nhật trạng thái đơn hàng thất bại!");
+			toast.warn("Cập nhật trạng thái đơn hàng thất bại!");
 		}
 	};
 

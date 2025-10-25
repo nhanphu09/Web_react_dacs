@@ -4,9 +4,11 @@ import express from "express";
 import connectDB from "./config/db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
+import brandRoutes from "./routes/brandRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { createAdminIfMissing } from "./utils/seedAdmin.js";
 
@@ -43,6 +45,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/brands", brandRoutes);
+app.use("/api/reports", reportRoutes);
 
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 

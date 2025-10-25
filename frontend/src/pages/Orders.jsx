@@ -8,7 +8,7 @@ export default function Orders() {
 	useEffect(() => {
 		const fetchOrders = async () => {
 			try {
-				const res = await api.get("/orders");
+				const res = await api.get("/orders//my-orders");
 				setOrders(res.data);
 			} catch (error) {
 				console.error("Failed to fetch orders", error);

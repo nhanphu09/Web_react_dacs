@@ -10,7 +10,7 @@ export default function AdminReports() {
 	});
 
 	useEffect(() => {
-		api.get("/admin/reports").then((res) => setStats(res.data));
+		api.get("/reports").then((res) => setStats(res.data));
 	}, []);
 
 	return (
@@ -80,7 +80,7 @@ export default function AdminReports() {
 							) : (
 								stats.bestSellers.map((p, i) => (
 									<tr
-										key={p._id}
+										key={i}
 										className={`border-t hover:bg-gray-50 transition ${
 											i % 2 === 0 ? "bg-white" : "bg-gray-50"
 										}`}>

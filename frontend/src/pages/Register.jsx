@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
 
 export default function Register() {
-	const { register } = useAuth();
+	const { register, loading } = useAuth();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -13,10 +14,10 @@ export default function Register() {
 		e.preventDefault();
 		try {
 			await register(name, email, password);
-			alert("Đăng ký thành công! Vui lòng đăng nhập.");
+			toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
 			navigate("/login");
 		} catch (e) {
-			alert("Đăng ký thất bại. Vui lòng thử lại.");
+			toast.error("Đăng ký thất bại. Email có thể đã tồn tại.");
 		}
 	};
 
@@ -71,8 +72,11 @@ export default function Register() {
 
 					<button
 						type="submit"
-						className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-						Đăng ký
+						className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50"
+						disabled={loading}>
+						{" "}
+						{/* 🟢 THÊM */}
+						{loading ? "Đang xử lý..." : "Đăng ký"} {/* 🟢 SỬA */}
 					</button>
 				</form>
 

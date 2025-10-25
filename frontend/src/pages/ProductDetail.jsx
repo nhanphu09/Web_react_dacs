@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../api/client";
 
 export default function ProductDetail() {
@@ -30,7 +31,8 @@ export default function ProductDetail() {
 				qty: Number(qty),
 			});
 		localStorage.setItem("cart", JSON.stringify(cart));
-		navigate("/cart");
+		//navigate("/cart");
+		toast.success("Đã thêm vào giỏ hàng!");
 	};
 
 	const postReview = async () => {
@@ -41,12 +43,12 @@ export default function ProductDetail() {
 				userId: "client",
 				name: "You",
 			});
-			alert("Review posted successfully!");
+			toast.success("Gửi đánh giá thành công!");
 			const r = await api.get(`/products/${id}`);
 			setProduct(r.data);
 			setComment("");
 		} catch (e) {
-			alert("Failed to post review");
+			toast.error("Gửi đánh giá thất bại!");
 		}
 	};
 
@@ -76,7 +78,8 @@ export default function ProductDetail() {
 						{product.title}
 					</h2>
 					<p className="text-gray-500 mb-1">
-						{product.brand} — {product.category}
+						{product.brand?.name || "No Brand"} —{" "}
+						{product.category?.name || "No Category"}
 					</p>
 					<p className="text-blue-600 text-3xl font-semibold mb-4">
 						{product.price ? `$${product.price}` : "N/A"}

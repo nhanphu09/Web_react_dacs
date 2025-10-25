@@ -1,11 +1,24 @@
 import express from "express";
+import {
+	createProduct, // Sẽ thêm ở bước 2
+	createProductReview,
+	deleteProduct,
+	getProductById, // Sẽ thêm ở bước 4
+	getProductReviews,
+	getProducts,
+} from "../controllers/productController.js";
+import { adminOnly, protect } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-router.get("/", (req,res)=>{
-  res.json([
-    { id: 1, name: "Sneaker One", price: 59.99, description: "Comfortable sneaker." },
-    { id: 2, name: "Runner Pro", price: 89.99, description: "Lightweight runner." },
-    { id: 3, name: "Classic Leather", price: 129.99, description: "Premium leather shoe." }
-  ]);
-});
-router.get("/:id", (req,res)=>{ res.json({ id: req.params.id, name: `Product ${req.params.id}`, price: 49.99 }); });
+
+router.get("/", getProducts); // 🟢 ĐÃ SỬA: Gọi controller
+router.post("/", protect, adminOnly, createProduct); // 🟢 ĐÃ SỬA: Gọi controller
+
+router.get("/:id", getProductById); // 🟢 ĐÃ THÊM: Cho trang chi tiết
+
+// 🟢 ĐÃ THÊM: Cho trang đánh giá
+router.get("/:id/reviews", getProductReviews);
+router.post("/:id/reviews", protect, createProductReview);
+router.delete("/:id", protect, adminOnly, deleteProduct);
+
 export default router;

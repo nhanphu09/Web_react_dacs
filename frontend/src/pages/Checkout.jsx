@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../api/client";
 
 export default function Checkout() {
@@ -10,6 +11,7 @@ export default function Checkout() {
 		postal: "",
 	});
 	const [paymentMethod, setPaymentMethod] = useState("COD");
+	const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 	const navigate = useNavigate();
 
 	const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -19,9 +21,10 @@ export default function Checkout() {
 
 	const placeOrder = async () => {
 		if (cart.length === 0) {
-			alert("Your cart is empty!");
+			toast.warn("Giỏ hàng của bạn đang trống!");
 			return;
 		}
+		setIsPlacingOrder(true);
 		try {
 			const order = {
 				userId: "client",
@@ -38,11 +41,13 @@ export default function Checkout() {
 			};
 
 			await api.post("/orders", order);
-			alert("✅ Order placed successfully!");
+			toast.success("✅ Đặt hàng thành công!");
 			localStorage.removeItem("cart");
 			navigate("/orders");
 		} catch (e) {
-			alert("❌ Order failed. Please try again.");
+			toast.error("❌ Đặt hàng thất bại. Vui lòng thử lại.");
+		} finally {
+			setIsPlacingOrder(false);
 		}
 	};
 
@@ -122,8 +127,11 @@ export default function Checkout() {
 
 					<button
 						onClick={placeOrder}
-						className="w-full mt-6 bg-primary text-white py-3 rounded-lg font-semibold text-lg hover:bg-secondary transition-all duration-300">
-						Place Order
+						className="w-full mt-6 bg-primary text-white py-3 rounded-lg font-semibold text-lg hover:bg-secondary transition-all duration-300 disabled:opacity-50"
+						disabled={isPlacingOrder}>
+						{" "}
+						{/* 🟢 THÊM */}
+						{isPlacingOrder ? "Đang xử lý..." : "Place Order"} {/* 🟢 SỬA */}
 					</button>
 				</div>
 			</div>

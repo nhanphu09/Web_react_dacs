@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
 
 export default function Login() {
-	const { login, user } = useAuth();
+	const { login, user, loading } = useAuth();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
@@ -25,15 +26,15 @@ export default function Login() {
 			const userData = await login(email, password);
 
 			if (userData) {
-				alert("Login successful!");
+				toast.success("Đăng nhập thành công!");
 				const isAdmin = userData.isAdmin || userData.role === "admin";
 				navigate(isAdmin ? "/admin" : "/");
 			} else {
-				alert("Invalid email or password!");
+				toast.error("Sai email hoặc mật khẩu!");
 			}
 		} catch (error) {
 			console.error("Login error:", error);
-			alert("Login failed! Please try again.");
+			toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
 		}
 	};
 
@@ -73,8 +74,11 @@ export default function Login() {
 
 					<button
 						type="submit"
-						className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark">
-						Login
+						className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark disabled:opacity-50"
+						disabled={loading}>
+						{" "}
+						{/* 🟢 THÊM */}
+						{loading ? "Đang xử lý..." : "Login"} {/* 🟢 SỬA */}
 					</button>
 				</form>
 
