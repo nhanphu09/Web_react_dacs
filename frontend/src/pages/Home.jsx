@@ -19,19 +19,23 @@ export default function Home() {
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]); // 🟢 NÂNG CẤP 1: Thêm state cho brand
 	const [loading, setLoading] = useState(true);
+	const [bestSellers, setBestSellers] = useState([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setLoading(true);
-				const [productRes, categoryRes, brandRes] = await Promise.all([
-					api.get("/products?limit=4"),
-					api.get("/categories"),
-					api.get("/brands"), // 🟢 NÂNG CẤP 1: Tải API brands
-				]);
+				const [productRes, categoryRes, brandRes, bestSellerRes] =
+					await Promise.all([
+						api.get("/products?limit=4&sort=createdAt_desc"), // Lấy 4 sản phẩm mới nhất
+						api.get("/categories"),
+						api.get("/brands"), // 🟢 NÂNG CẤP 1: Tải API brands
+						api.get("/products?limit=4&sort=sold_desc"), // Lấy 4 sản phẩm bán chạy nhất
+					]);
 				setFeaturedProducts(productRes.data.products);
 				setCategories(categoryRes.data);
 				setBrands(brandRes.data); // 🟢 NÂNG CẤP 1: Lưu brands
+				setBestSellers(bestSellerRes.data.products);
 			} catch (err) {
 				console.error("Failed to fetch home page data", err);
 			} finally {
@@ -90,6 +94,26 @@ export default function Home() {
 					// 3. Nếu không tải VÀ có sản phẩm -> Hiển thị sản phẩm
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 						{featuredProducts.map((p) => (
+							<ProductCard key={p._id} product={p} />
+						))}
+					</div>
+				)}
+			</div>
+
+			{/* 🟢 THÊM: Phần Sản phẩm Bán chạy */}
+			<div className="max-w-7xl mx-auto px-4 mt-16">
+				<h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+					🔥 Sản phẩm Bán chạy
+				</h2>
+				{loading ? (
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+						{[1, 2, 3, 4].map((n) => (
+							<SkeletonCard key={n} />
+						))}
+					</div>
+				) : (
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+						{bestSellers.map((p) => (
 							<ProductCard key={p._id} product={p} />
 						))}
 					</div>

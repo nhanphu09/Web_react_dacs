@@ -27,6 +27,8 @@ export const getProducts = async (req, res) => {
 			sortOptions = { price: 1 }; // 1 = tăng dần
 		} else if (req.query.sort === "price_desc") {
 			sortOptions = { price: -1 }; // -1 = giảm dần
+		} else if (req.query.sort === "sort_dects") {
+			sortOptions = { sold: -1 };
 		}
 
 		// Đếm tổng số sản phẩm khớp với bộ lọc
