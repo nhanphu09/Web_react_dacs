@@ -21,6 +21,9 @@ export const getProducts = async (req, res) => {
 			if (req.query.minPrice) filter.price.$gte = Number(req.query.minPrice);
 			if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice);
 		}
+		if (req.query.exclude) {
+			filter._id = { $ne: req.query.exclude }; // $ne = Not Equal (Không bao gồm)
+		}
 
 		let sortOptions = { createdAt: -1 }; // Mặc định: Mới nhất
 		if (req.query.sort === "price_asc") {
@@ -75,7 +78,9 @@ export const createProduct = async (req, res) => {
 
 export const getProductById = async (req, res) => {
 	try {
-		const product = await Product.findById(req.params.id).populate("category");
+		const product = await Product.findById(req.params.id)
+			.populate("category")
+			.populate("brand");
 		if (product) {
 			res.json(product);
 		} else {

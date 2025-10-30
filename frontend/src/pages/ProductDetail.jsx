@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { CheckCircle, Star, Tag, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import { FreeMode, Navigation, Thumbs } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+
 import api from "../api/client";
+import ProductCard from "../components/ProductCard"; // 🟢 THÊM: Import ProductCard
 
 export default function ProductDetail() {
 	const { id } = useParams();
@@ -9,17 +18,45 @@ export default function ProductDetail() {
 	const [qty, setQty] = useState(1);
 	const [rating, setRating] = useState(5);
 	const [comment, setComment] = useState("");
-	const navigate = useNavigate();
+	const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
-	useEffect(() => {
-		if (!id) return;
+	// 🟢 THÊM: State cho sản phẩm liên quan
+	const [relatedProducts, setRelatedProducts] = useState([]);
+
+	// 🟢 SỬA: Tách hàm fetch
+	const fetchProduct = () => {
 		api
 			.get(`/products/${id}`)
 			.then((r) => setProduct(r.data))
 			.catch(() => {});
-	}, [id]);
+	};
+
+	useEffect(() => {
+		fetchProduct(); // Tải sản phẩm chính
+		setRelatedProducts([]); // Reset sản phẩm liên quan khi đổi trang
+	}, [id]); // ⬅️ Chạy khi ID thay đổi
+
+	// 🟢 THÊM: useEffect để tải sản phẩm liên quan
+	useEffect(() => {
+		// Chỉ chạy khi sản phẩm chính đã được tải
+		if (product && product.category) {
+			const fetchRelated = async () => {
+				try {
+					// Tìm các sản phẩm cùng danh mục, giới hạn 8, và loại trừ chính nó
+					const res = await api.get(
+						`/products?category=${product.category._id}&limit=8&exclude=${product._id}`
+					);
+					setRelatedProducts(res.data.products);
+				} catch (err) {
+					console.error("Failed to fetch related products", err);
+				}
+			};
+			fetchRelated();
+		}
+	}, [product]); // ⬅️ Chạy khi 'product' thay đổi
 
 	const addToCart = () => {
+		// ... (Logic giỏ hàng của bạn giữ nguyên)
 		const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 		const exist = cart.find((i) => i.product === id);
 		if (exist) exist.qty = Number(exist.qty) + Number(qty);
@@ -31,11 +68,11 @@ export default function ProductDetail() {
 				qty: Number(qty),
 			});
 		localStorage.setItem("cart", JSON.stringify(cart));
-		//navigate("/cart");
 		toast.success("Đã thêm vào giỏ hàng!");
 	};
 
 	const postReview = async () => {
+		// ... (Logic post review của bạn giữ nguyên)
 		try {
 			await api.post(`/products/${id}/reviews`, {
 				rating,
@@ -44,8 +81,7 @@ export default function ProductDetail() {
 				name: "You",
 			});
 			toast.success("Gửi đánh giá thành công!");
-			const r = await api.get(`/products/${id}`);
-			setProduct(r.data);
+			fetchProduct(); // 🟢 SỬA: Tải lại dữ liệu sản phẩm (để cập nhật đánh giá)
 			setComment("");
 		} catch (e) {
 			toast.error("Gửi đánh giá thất bại!");
@@ -55,120 +91,248 @@ export default function ProductDetail() {
 	if (!product)
 		return <div className="p-6 text-center text-gray-500">Loading...</div>;
 
+	const productImages = product.images || [product.image];
+
 	return (
-		<div className="max-w-6xl mx-auto p-6 bg-white rounded-2xl shadow-lg mt-10">
-			{/* Thông tin sản phẩm */}
-			<div className="grid md:grid-cols-2 gap-8">
-				{/* Ảnh */}
-				<div className="bg-gray-100 rounded-lg flex items-center justify-center h-96 overflow-hidden">
-					{product.image ? (
-						<img
-							src={product.image}
-							alt={product.title}
-							className="object-contain w-full h-full hover:scale-105 transition-transform"
-						/>
-					) : (
-						<span className="text-gray-400">No Image</span>
-					)}
-				</div>
-
-				{/* Chi tiết */}
-				<div>
-					<h2 className="text-3xl font-bold text-gray-800 mb-2">
-						{product.title}
-					</h2>
-					<p className="text-gray-500 mb-1">
-						{product.brand?.name || "No Brand"} —{" "}
-						{product.category?.name || "No Category"}
-					</p>
-					<p className="text-blue-600 text-3xl font-semibold mb-4">
-						{product.price ? `$${product.price}` : "N/A"}
-					</p>
-					<p className="text-gray-700 mb-6 leading-relaxed">
-						{product.description}
-					</p>
-
-					{/* Số lượng */}
-					<div className="flex items-center gap-3 mb-5">
-						<label className="text-sm font-medium text-gray-700">
-							Số lượng:
-						</label>
-						<input
-							type="number"
-							value={qty}
-							min="1"
-							onChange={(e) => setQty(e.target.value)}
-							className="border border-gray-300 rounded-md px-3 py-1 w-20 text-center focus:ring-2 focus:ring-blue-500"
-						/>
+		// 🟢 SỬA: Xóa bg-white và shadow, vì giờ nó là 1 phần của trang
+		<div className="max-w-6xl mx-auto p-6 mt-10">
+			{/* Phần 1: Thông tin sản phẩm */}
+			<div className="bg-white rounded-2xl shadow-lg p-6">
+				{/* Bố cục 2 cột (Giữ nguyên) */}
+				<div className="grid md:grid-cols-2 gap-8">
+					{/* CỘT 1 - THƯ VIỆN ẢNH SWIPER (Giữ nguyên) */}
+					<div>
+						<Swiper
+							modules={[FreeMode, Navigation, Thumbs]}
+							spaceBetween={10}
+							navigation
+							thumbs={{
+								swiper:
+									thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+							}}
+							className="rounded-lg shadow-md mb-3 border">
+							{productImages.map((img, index) => (
+								<SwiperSlide key={index}>
+									<div className="w-full h-96 flex items-center justify-center bg-gray-100">
+										<img
+											src={img}
+											alt={product.title}
+											className="object-contain w-full h-full"
+										/>
+									</div>
+								</SwiperSlide>
+							))}
+						</Swiper>
+						<Swiper
+							onSwiper={setThumbsSwiper}
+							modules={[FreeMode, Thumbs]}
+							spaceBetween={10}
+							slidesPerView={4}
+							freeMode={true}
+							watchSlidesProgress={true}
+							className="h-24">
+							{productImages.map((img, index) => (
+								<SwiperSlide
+									key={index}
+									className="cursor-pointer border rounded-md overflow-hidden hover:border-primary">
+									<img
+										src={img}
+										alt="thumbnail"
+										className="object-contain w-full h-full"
+									/>
+								</SwiperSlide>
+							))}
+						</Swiper>
 					</div>
 
-					{/* Nút hành động */}
-					<div className="flex flex-wrap gap-4">
-						<button
-							onClick={addToCart}
-							className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-all">
-							🛒 Thêm vào giỏ
-						</button>
-						<button
-							onClick={() => navigate("/checkout")}
-							className="border border-blue-600 text-blue-600 px-6 py-2.5 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-all">
-							💳 Mua ngay
-						</button>
-					</div>
-				</div>
-			</div>
-
-			{/* Reviews */}
-			<div className="mt-10 border-t pt-6">
-				<h3 className="text-xl font-semibold mb-4 text-gray-800">
-					Đánh giá từ khách hàng
-				</h3>
-				{product.reviews?.length ? (
-					product.reviews.map((r, i) => (
-						<div key={i} className="border-b py-3">
-							<p className="font-medium text-gray-800">
-								{r.name} —{" "}
-								<span className="text-yellow-500">⭐ {r.rating}</span>
-							</p>
-							<p className="text-gray-600">{r.comment}</p>
+					{/* CỘT 2 - THÔNG TIN SẢN PHẨM (Giữ nguyên) */}
+					<div>
+						<h2 className="text-3xl font-bold text-gray-800 mb-2">
+							{product.title}
+						</h2>
+						<p className="text-gray-500 mb-1">
+							Thương hiệu:{" "}
+							<span className="font-medium text-primary">
+								{product.brand?.name || "Chưa rõ"}
+							</span>{" "}
+							| Danh mục:{" "}
+							<span className="font-medium text-primary">
+								{product.category?.name || "Chưa rõ"}
+							</span>
+						</p>
+						<p className="text-primary text-3xl font-bold mb-4">
+							{product.price
+								? product.price.toLocaleString("vi-VN", {
+										style: "currency",
+										currency: "VND",
+								  })
+								: "N/A"}
+						</p>
+						<div className="mb-4">
+							{product.stock > 0 ? (
+								<span className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium text-sm w-fit">
+									<CheckCircle size={16} /> Còn hàng ({product.stock})
+								</span>
+							) : (
+								<span className="flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 font-medium text-sm w-fit">
+									Hết hàng
+								</span>
+							)}
 						</div>
-					))
-				) : (
-					<p className="text-gray-500 italic">Chưa có đánh giá nào.</p>
-				)}
+
+						{/* Hộp khuyến mãi (Giữ nguyên) */}
+						<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
+							<h4 className="font-bold text-lg text-primary mb-2 flex items-center gap-1">
+								<Tag size={18} /> Khuyến mãi & Thông tin
+							</h4>
+							{product.promotions && product.promotions.length > 0 ? (
+								<ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
+									{product.promotions.map((promo, index) => (
+										<li key={index}>{promo}</li>
+									))}
+								</ul>
+							) : (
+								<p className="text-sm text-gray-600 italic">
+									Sản phẩm hiện không có khuyến mãi.
+								</p>
+							)}
+						</div>
+
+						<p className="text-gray-700 mb-6 leading-relaxed">
+							{product.description || "Sản phẩm chưa có mô tả."}
+						</p>
+
+						<div className="flex items-center gap-3 mb-5">
+							<label className="text-sm font-medium text-gray-700">
+								Số lượng:
+							</label>
+							<input
+								type="number"
+								value={qty}
+								min="1"
+								max={product.stock}
+								onChange={(e) => setQty(e.target.value)}
+								className="border border-gray-300 rounded-md px-3 py-1 w-20 text-center focus:ring-2 focus:ring-primary"
+								disabled={product.stock === 0}
+							/>
+						</div>
+						<div className="flex flex-col sm:flex-row gap-4">
+							<button
+								onClick={addToCart}
+								disabled={product.stock === 0}
+								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+								🛒 Thêm vào giỏ
+							</button>
+							<button
+								onClick={() => navigate("/checkout")}
+								disabled={product.stock === 0}
+								className="w-full border border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+								💳 Mua ngay
+							</button>
+						</div>
+					</div>
+				</div>
+
+				{/* KHU VỰC ĐÁNH GIÁ (Giữ nguyên) */}
+				<div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+					<div className="border-t pt-6">
+						<h3 className="text-xl font-semibold mb-4 text-gray-800">
+							Đánh giá từ khách hàng ({product.reviews?.length || 0})
+						</h3>
+						<div className="space-y-4 max-h-96 overflow-y-auto">
+							{product.reviews?.length ? (
+								product.reviews.map((r, i) => (
+									<div key={i} className="border-b py-3 flex gap-3">
+										<div className="bg-gray-200 p-2 rounded-full h-10 w-10 flex-shrink-0 flex items-center justify-center">
+											<User size={18} className="text-gray-600" />
+										</div>
+										<div>
+											<p className="font-medium text-gray-800">{r.name}</p>
+											<div className="flex items-center">
+												{[...Array(5)].map((_, idx) => (
+													<Star
+														key={idx}
+														size={16}
+														className={
+															idx < r.rating
+																? "text-yellow-400"
+																: "text-gray-300"
+														}
+														fill={idx < r.rating ? "currentColor" : "none"}
+													/>
+												))}
+											</div>
+											<p className="text-gray-600 mt-1">{r.comment}</p>
+										</div>
+									</div>
+								))
+							) : (
+								<p className="text-gray-500 italic">Chưa có đánh giá nào.</p>
+							)}
+						</div>
+					</div>
+					<div className="border-t pt-6">
+						<h4 className="text-xl font-semibold mb-3 text-gray-800">
+							Viết đánh giá của bạn
+						</h4>
+						<div className="space-y-3">
+							<div className="flex items-center gap-3">
+								<label className="text-sm font-medium text-gray-700">
+									Đánh giá:
+								</label>
+								<select
+									value={rating}
+									onChange={(e) => setRating(e.target.value)}
+									className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary">
+									{[5, 4, 3, 2, 1].map((n) => (
+										<option key={n} value={n}>
+											{n} sao
+										</option>
+									))}
+								</select>
+							</div>
+							<textarea
+								rows="4"
+								value={comment}
+								onChange={(e) => setComment(e.target.value)}
+								className="border border-gray-300 rounded-md w-full p-3 focus:ring-2 focus:ring-primary"
+								placeholder="Nhập nội dung đánh giá của bạn..."
+							/>
+							<button
+								onClick={postReview}
+								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+								Gửi đánh giá
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			{/* Viết review */}
-			<div className="mt-10 border-t pt-6">
-				<h4 className="text-lg font-semibold mb-3 text-gray-800">
-					Viết đánh giá của bạn
-				</h4>
-				<div className="flex items-center gap-3 mb-3">
-					<label className="text-sm font-medium text-gray-700">Đánh giá:</label>
-					<select
-						value={rating}
-						onChange={(e) => setRating(e.target.value)}
-						className="border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500">
-						{[5, 4, 3, 2, 1].map((n) => (
-							<option key={n} value={n}>
-								{n} sao
-							</option>
+			{/* 🟢 THÊM: PHẦN 2 - SẢN PHẨM LIÊN QUAN */}
+			{relatedProducts.length > 0 && (
+				<div className="bg-white rounded-2xl shadow-lg p-6 mt-10">
+					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
+						Sản phẩm liên quan
+					</h2>
+					<Swiper
+						modules={[Navigation]}
+						navigation
+						spaceBetween={16}
+						slidesPerView={1.5}
+						breakpoints={{
+							640: { slidesPerView: 2 },
+							768: { slidesPerView: 3 },
+							1024: { slidesPerView: 4 },
+						}}
+						className="!pb-4">
+						{relatedProducts.map((p) => (
+							<SwiperSlide key={p._id} className="h-full">
+								<ProductCard product={p} />
+							</SwiperSlide>
 						))}
-					</select>
+					</Swiper>
 				</div>
-				<textarea
-					rows="3"
-					value={comment}
-					onChange={(e) => setComment(e.target.value)}
-					className="border border-gray-300 rounded-md w-full p-3 mb-3 focus:ring-2 focus:ring-blue-500"
-					placeholder="Nhập nội dung đánh giá..."
-				/>
-				<button
-					onClick={postReview}
-					className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all">
-					Gửi đánh giá
-				</button>
-			</div>
+			)}
 		</div>
 	);
 }

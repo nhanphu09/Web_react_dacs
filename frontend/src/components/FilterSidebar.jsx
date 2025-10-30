@@ -1,7 +1,6 @@
 // src/components/FilterSidebar.jsx
 
 import { X } from "lucide-react";
-import React from "react";
 
 export default function FilterSidebar({
 	// Props (State)
@@ -12,16 +11,16 @@ export default function FilterSidebar({
 	brand,
 	minPrice,
 	maxPrice,
-	sort,
+	// ❌ ĐÃ XÓA 'sort'
 	// Props (Setters)
 	setQ,
 	setCategory,
 	setBrand,
 	setMinPrice,
 	setMaxPrice,
-	setSort,
-	handleReset, // Hàm reset
-	handleSearch, // Hàm tìm kiếm
+	// ❌ ĐÃ XÓA 'setSort'
+	handleReset,
+	handleSearch,
 }) {
 	return (
 		<aside className="bg-white p-6 rounded-2xl shadow-lg h-fit sticky top-24">
@@ -49,21 +48,7 @@ export default function FilterSidebar({
 					/>
 				</div>
 
-				{/* 2. Sắp xếp */}
-				<div>
-					<label className="text-sm font-semibold text-gray-700 block mb-2">
-						Sắp xếp
-					</label>
-					<select
-						value={sort}
-						onChange={(e) => setSort(e.target.value)}
-						className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary bg-white">
-						<option value="createdAt_desc">Mới nhất</option>
-						<option value="price_asc">Giá: Tăng dần</option>
-						<option value="price_desc">Giá: Giảm dần</option>
-						<option value="sort_dects">Bán chạy nhất</option>
-					</select>
-				</div>
+				{/* 2. ❌ ĐÃ XÓA PHẦN SẮP XẾP */}
 
 				{/* 3. Khoảng giá */}
 				<div>

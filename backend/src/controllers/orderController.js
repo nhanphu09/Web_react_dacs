@@ -1,4 +1,5 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 
 export const getOrders = async (req, res) => {
 	try {
@@ -13,11 +14,13 @@ export const getOrders = async (req, res) => {
 
 export const createOrder = async (req, res) => {
 	try {
-		const { products, totalPrice } = req.body;
+		const { products, totalPrice, shippingAddress, paymentMethod } = req.body;
 		const order = new Order({
 			user: req.user._id,
 			products,
 			totalPrice,
+			shippingAddress,
+			paymentMethod,
 		});
 		await order.save();
 		for (const item of order.products) {

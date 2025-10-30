@@ -1,4 +1,15 @@
+// backend/models/Order.js
 import mongoose from "mongoose";
+
+// 🟢 THÊM SCHEMA PHỤ CHO ĐỊA CHỈ
+const shippingAddressSchema = new mongoose.Schema({
+	name: { type: String, required: true },
+	email: { type: String, required: true },
+	phone: { type: String, required: true },
+	line1: { type: String, required: true },
+	city: { type: String, required: true },
+	postal: { type: String },
+});
 
 const orderSchema = new mongoose.Schema(
 	{
@@ -18,6 +29,9 @@ const orderSchema = new mongoose.Schema(
 			enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
 			default: "Pending",
 		},
+		// 🟢 THÊM 2 DÒNG NÀY
+		shippingAddress: { type: shippingAddressSchema, required: true },
+		paymentMethod: { type: String, required: true, default: "COD" },
 	},
 	{ timestamps: true }
 );

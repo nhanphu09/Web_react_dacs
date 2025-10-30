@@ -32,6 +32,7 @@ const productSchema = new mongoose.Schema(
 		rating: { type: Number, default: 0 }, // Đánh giá trung bình
 		numReviews: { type: Number, default: 0 }, // Tổng số đánh giá
 		sold: { type: Number, default: 0 }, // 🟢 THÊM: Trường đếm số lượt bán
+		promotions: [String],
 	},
 	{ timestamps: true }
 );

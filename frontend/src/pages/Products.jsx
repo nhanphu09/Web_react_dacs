@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/client";
 import FilterSidebar from "../components/FilterSidebar";
 import ProductCard from "../components/ProductCard";
@@ -15,11 +15,12 @@ const SkeletonCard = () => (
 );
 
 export default function Products() {
-	// State (Giữ nguyên)
+	// State
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+	const [totalProducts, setTotalProducts] = useState(0); // 🟢 THÊM STATE NÀY
 	const [q, setQ] = useState("");
 	const [category, setCategory] = useState("");
 	const [brand, setBrand] = useState("");
@@ -29,7 +30,6 @@ export default function Products() {
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 
-	// ... (Các hàm fetchProducts, fetchFilters, handleSearch, handleReset giữ nguyên) ...
 	const fetchProducts = async () => {
 		try {
 			setLoading(true);
@@ -43,6 +43,7 @@ export default function Products() {
 			const res = await api.get("/products", { params });
 			setProducts(res.data.products);
 			setTotalPages(res.data.totalPages);
+			setTotalProducts(res.data.count); // 🟢 CẬP NHẬT STATE TỔNG SP
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -50,6 +51,7 @@ export default function Products() {
 		}
 	};
 
+	// ... (Các hàm fetchFilters, handleSearch, handleReset giữ nguyên) ...
 	const fetchFilters = async () => {
 		try {
 			const [catRes, brandRes] = await Promise.all([
@@ -94,7 +96,6 @@ export default function Products() {
 		}
 	};
 
-	// 🟢 THÊM: Biến kiểm tra xem có bộ lọc nào đang hoạt động không
 	const isFiltering =
 		q || category || brand || minPrice || maxPrice || sort !== "createdAt_desc";
 
@@ -104,7 +105,6 @@ export default function Products() {
 				Tất cả sản phẩm
 			</h2>
 
-			{/* BỐ CỤC 2 CỘT */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 				{/* CỘT 1: SIDEBAR LỌC */}
 				<div className="md:col-span-1">
@@ -121,8 +121,6 @@ export default function Products() {
 						setMinPrice={setMinPrice}
 						maxPrice={maxPrice}
 						setMaxPrice={setMaxPrice}
-						sort={sort}
-						setSort={setSort}
 						handleReset={handleReset}
 						handleSearch={handleSearch}
 					/>
@@ -130,7 +128,37 @@ export default function Products() {
 
 				{/* CỘT 2: LƯỚI SẢN PHẨM */}
 				<div className="md:col-span-3">
-					{/* 🟢 THÊM: KHU VỰC HIỂN THỊ BỘ LỌC ĐANG ÁP DỤNG */}
+					{/* 🟢 THÊM: HEADER CHO CỘT SẢN PHẨM (ĐẾM + SẮP XẾP) */}
+					<div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm mb-6">
+						<p className="text-gray-700 font-medium text-sm mb-2 md:mb-0">
+							{!loading && (
+								<>
+									Tìm thấy{" "}
+									<span className="font-bold text-primary">
+										{totalProducts}
+									</span>{" "}
+									sản phẩm
+								</>
+							)}
+						</p>
+						<div className="flex items-center gap-2">
+							<label className="text-sm font-medium text-gray-700">
+								Sắp xếp theo:
+							</label>
+							<select
+								value={sort}
+								onChange={(e) => setSort(e.target.value)}
+								className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white">
+								<option value="createdAt_desc">Mới nhất</option>
+								<option value="price_asc">Giá: Tăng dần</option>
+								<option value="price_desc">Giá: Giảm dần</option>
+								<option value="sort_dects">Bán chạy nhất</option>
+							</select>
+						</div>
+					</div>
+					{/* (Kết thúc header) */}
+
+					{/* Khu vực hiển thị bộ lọc (Giữ nguyên) */}
 					{isFiltering && (
 						<div className="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-2 text-sm text-gray-700">
 							<span className="font-semibold">Đang lọc theo:</span>
@@ -184,8 +212,8 @@ export default function Products() {
 							</button>
 						</div>
 					)}
-					{/* (Kết thúc khu vực mới) */}
 
+					{/* Lưới sản phẩm (Giữ nguyên) */}
 					{loading ? (
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 							{[...Array(9)].map((_, i) => (
