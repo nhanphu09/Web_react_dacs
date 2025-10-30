@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout.jsx";
+import CategoryNav from "./components/CategoryNav.jsx";
+import Footer from "./components/Footer.jsx";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminCategories from "./pages/AdminCategories";
@@ -14,7 +16,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import ProductDetail from "./pages/ProductDetail";
-import Products from "./pages/Products"; // ✅ thêm dòng này
+import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Review from "./pages/Review";
@@ -23,6 +25,7 @@ export default function App() {
 	return (
 		<>
 			<Navbar />
+			<CategoryNav />
 			<Routes>
 				{/* Public routes */}
 				<Route path="/" element={<Home />} />
@@ -101,6 +104,7 @@ export default function App() {
 					<Route path="categories" element={<AdminCategories />} />
 				</Route>
 			</Routes>
+			<Footer />
 		</>
 	);
 }

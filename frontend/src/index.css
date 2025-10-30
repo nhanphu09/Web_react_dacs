@@ -6,3 +6,23 @@
 body {
 	@apply font-sans bg-gray-50 text-gray-800;
 }
+.swiper-button-next,
+.swiper-button-prev {
+	background-color: white;
+	color: #e60012; /* Màu primary của bạn */
+	padding: 1.25rem; /* 20px */
+	border-radius: 50%;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: all 0.2s;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+	font-size: 1rem !important; /* 16px */
+	font-weight: 800 !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+	background-color: #f3f4f6; /* bg-gray-100 */
+}

@@ -46,6 +46,7 @@ export const getProducts = async (req, res) => {
 			products,
 			page,
 			totalPages: Math.ceil(count / pageSize),
+			count: count,
 		});
 	} catch (err) {
 		res.status(500).json({ message: err.message });
