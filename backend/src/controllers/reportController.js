@@ -43,3 +43,48 @@ export const getStats = async (req, res) => {
 		res.status(500).json({ message: err.message });
 	}
 };
+
+export const getChartData = async (req, res) => {
+	try {
+		const sevenDaysAgo = new Date();
+		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+		sevenDaysAgo.setHours(0, 0, 0, 0);
+
+		const salesData = await Order.aggregate([
+			{
+				$match: {
+					createdAt: { $gte: sevenDaysAgo },
+					status: "Delivered",
+				},
+			},
+			{
+				$group: {
+					_id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+					totalSales: { $sum: "$totalPrice" },
+				},
+			},
+		]);
+
+		const salesMap = new Map();
+		salesData.forEach((item) => {
+			salesMap.set(item._id, item.totalSales);
+		});
+
+		const formattedData = [];
+		for (let i = 0; i < 7; i++) {
+			const date = new Date(sevenDaysAgo);
+			date.setDate(date.getDate() + i);
+
+			const dateString = date.toISOString().split("T")[0];
+
+			formattedData.push({
+				date: dateString,
+				sales: salesMap.get(dateString) || 0,
+			});
+		}
+
+		res.json(formattedData);
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+};
