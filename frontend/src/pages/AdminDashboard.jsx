@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 					api.get("/orders?limit=5&sort=createdAt_desc"), // Tải 5 đơn hàng mới nhất
 				]);
 				setStats(statsRes.data);
-				setRecentOrders(ordersRes.data);
+				setRecentOrders(ordersRes.data.orders);
 			} catch (err) {
 				console.error("Failed to fetch dashboard data", err);
 			} finally {

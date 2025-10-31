@@ -1,6 +1,6 @@
-import { CheckCircle, Tag } from "lucide-react";
+import { CheckCircle, Star, Tag, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // 🟢 1. THÊM useNavigate
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -14,14 +14,13 @@ import ProductCard from "../components/ProductCard";
 
 export default function ProductDetail() {
 	const { id } = useParams();
-	const navigate = useNavigate(); // 🟢 2. KHỞI TẠO navigate
+	const navigate = useNavigate();
 	const [product, setProduct] = useState(null);
 	const [qty, setQty] = useState(1);
 	const [rating, setRating] = useState(5);
 	const [comment, setComment] = useState("");
 	const [thumbsSwiper, setThumbsSwiper] = useState(null);
-
-	const [relatedProducts, setRelatedProducts] = useState([]); // 🟢 3. THÊM STATE
+	const [relatedProducts, setRelatedProducts] = useState([]);
 
 	const fetchProduct = () => {
 		api
@@ -35,7 +34,6 @@ export default function ProductDetail() {
 		setRelatedProducts([]);
 	}, [id]);
 
-	// 🟢 4. THÊM useEffect ĐỂ TẢI SẢN PHẨM LIÊN QUAN
 	useEffect(() => {
 		if (product && product.category) {
 			const fetchRelated = async () => {
@@ -53,7 +51,6 @@ export default function ProductDetail() {
 	}, [product]);
 
 	const addToCart = () => {
-		// (Logic giỏ hàng giữ nguyên)
 		const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 		const exist = cart.find((i) => i.product === id);
 		if (exist) exist.qty = Number(exist.qty) + Number(qty);
@@ -62,7 +59,7 @@ export default function ProductDetail() {
 				product: id,
 				title: product.title,
 				price: product.price,
-				image: product.image, // 🟢 SỬA: Thêm image để Cart hiển thị
+				image: product.image, // Thêm image
 				qty: Number(qty),
 			});
 		localStorage.setItem("cart", JSON.stringify(cart));
@@ -70,19 +67,18 @@ export default function ProductDetail() {
 	};
 
 	const postReview = async () => {
-		// (Logic post review giữ nguyên)
 		try {
 			await api.post(`/products/${id}/reviews`, {
 				rating,
 				comment,
-				userId: "client",
-				name: "You",
+				userId: "client", // (Sẽ được thay bằng req.user ở backend)
+				name: "You", // (Sẽ được thay bằng req.user.name ở backend)
 			});
 			toast.success("Gửi đánh giá thành công!");
 			fetchProduct();
 			setComment("");
 		} catch (e) {
-			toast.error("Gửi đánh giá thất bại!");
+			toast.error(e.response?.data?.message || "Gửi đánh giá thất bại!");
 		}
 	};
 
@@ -96,7 +92,7 @@ export default function ProductDetail() {
 			{/* Phần 1: Thông tin sản phẩm */}
 			<div className="bg-white rounded-2xl shadow-lg p-6">
 				<div className="grid md:grid-cols-2 gap-8">
-					{/* CỘT 1 - THƯ VIỆN ẢNH (Giữ nguyên) */}
+					{/* CỘT 1 - THƯ VIỆN ẢNH */}
 					<div>
 						<Swiper
 							modules={[FreeMode, Navigation, Thumbs]}
@@ -143,7 +139,6 @@ export default function ProductDetail() {
 
 					{/* CỘT 2 - THÔNG TIN SẢN PHẨM */}
 					<div>
-						{/* ... (Title, Brand, Price, Stock giữ nguyên) ... */}
 						<h2 className="text-3xl font-bold text-gray-800 mb-2">
 							{product.title}
 						</h2>
@@ -177,13 +172,12 @@ export default function ProductDetail() {
 							)}
 						</div>
 
-						{/* 🟢 SỬA: HỘP KHUYẾN MÃI & MÔ TẢ */}
+						{/* HỘP KHUYẾN MÃI & MÔ TẢ */}
 						<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
 							<h4 className="font-bold text-lg text-primary mb-2 flex items-center gap-1">
 								<Tag size={18} /> Khuyến mãi & Thông tin
 							</h4>
 
-							{/* 1. Phần khuyến mãi (từ mảng 'promotions') */}
 							{product.promotions && product.promotions.length > 0 ? (
 								<ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
 									{product.promotions.map((promo, index) => (
@@ -196,7 +190,6 @@ export default function ProductDetail() {
 								</p>
 							)}
 
-							{/* 2. 🟢 DI CHUYỂN: Phần mô tả (từ 'description') vào đây */}
 							{product.description && (
 								<>
 									<hr className="my-3 border-gray-200" />
@@ -207,9 +200,7 @@ export default function ProductDetail() {
 							)}
 						</div>
 
-						{/* ❌ XÓA: Xóa <p> mô tả cũ ở đây */}
-
-						{/* ... (Input số lượng) ... */}
+						{/* Input số lượng */}
 						<div className="flex items-center gap-3 mb-5">
 							<label className="text-sm font-medium text-gray-700">
 								Số lượng:
@@ -224,6 +215,8 @@ export default function ProductDetail() {
 								disabled={product.stock === 0}
 							/>
 						</div>
+
+						{/* Nút bấm */}
 						<div className="flex flex-col sm:flex-row gap-4">
 							<button
 								onClick={addToCart}
@@ -232,7 +225,6 @@ export default function ProductDetail() {
 								🛒 Thêm vào giỏ
 							</button>
 							<button
-								// 🟢 SỬA: Thêm onClick cho "Mua ngay"
 								onClick={() => {
 									addToCart();
 									navigate("/checkout");
@@ -245,9 +237,9 @@ export default function ProductDetail() {
 					</div>
 				</div>
 
-				{/* KHU VỰC ĐÁNH GIÁ (Giữ nguyên) */}
+				{/* 🟢 SỬA: KHU VỰC ĐÁNH GIÁ (FULL CODE) */}
 				<div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-					{/* ... (Mã phần hiển thị đánh giá giữ nguyên) ... */}
+					{/* Cột 1: Hiển thị reviews */}
 					<div className="border-t pt-6">
 						<h3 className="text-xl font-semibold mb-4 text-gray-800">
 							Đánh giá từ khách hàng ({product.reviews?.length || 0})
@@ -255,8 +247,30 @@ export default function ProductDetail() {
 						<div className="space-y-4 max-h-96 overflow-y-auto">
 							{product.reviews?.length ? (
 								product.reviews.map((r, i) => (
-									<div key={i} className="border-b py-3 flex gap-3">
-										{/* ... (Mã hiển thị 1 review) ... */}
+									<div
+										key={i} // 🟢 SỬA: Dùng 'i' hoặc 'r._id' nếu có
+										className="border-b py-3 flex gap-3">
+										<div className="bg-gray-200 p-2 rounded-full h-10 w-10 flex-shrink-0 flex items-center justify-center">
+											<User size={18} className="text-gray-600" />
+										</div>
+										<div>
+											<p className="font-medium text-gray-800">{r.name}</p>
+											<div className="flex items-center">
+												{[...Array(5)].map((_, idx) => (
+													<Star
+														key={idx}
+														size={16}
+														className={
+															idx < r.rating
+																? "text-yellow-400"
+																: "text-gray-300"
+														}
+														fill={idx < r.rating ? "currentColor" : "none"}
+													/>
+												))}
+											</div>
+											<p className="text-gray-600 mt-1">{r.comment}</p>
+										</div>
 									</div>
 								))
 							) : (
@@ -264,19 +278,46 @@ export default function ProductDetail() {
 							)}
 						</div>
 					</div>
-					{/* ... (Mã phần viết đánh giá giữ nguyên) ... */}
+
+					{/* Cột 2: Viết review */}
 					<div className="border-t pt-6">
 						<h4 className="text-xl font-semibold mb-3 text-gray-800">
 							Viết đánh giá của bạn
 						</h4>
 						<div className="space-y-3">
-							{/* ... (Mã form viết review) ... */}
+							<div className="flex items-center gap-3">
+								<label className="text-sm font-medium text-gray-700">
+									Đánh giá:
+								</label>
+								<select
+									value={rating}
+									onChange={(e) => setRating(e.target.value)}
+									className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary">
+									{[5, 4, 3, 2, 1].map((n) => (
+										<option key={n} value={n}>
+											{n} sao
+										</option>
+									))}
+								</select>
+							</div>
+							<textarea
+								rows="4"
+								value={comment}
+								onChange={(e) => setComment(e.target.value)}
+								className="border border-gray-300 rounded-md w-full p-3 focus:ring-2 focus:ring-primary"
+								placeholder="Nhập nội dung đánh giá của bạn..."
+							/>
+							<button
+								onClick={postReview}
+								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+								Gửi đánh giá
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{/* 🟢 5. THÊM: PHẦN SẢN PHẨM LIÊN QUAN */}
+			{/* PHẦN SẢN PHẨM LIÊN QUAN */}
 			{relatedProducts.length > 0 && (
 				<div className="bg-white rounded-2xl shadow-lg p-6 mt-10">
 					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
