@@ -1,16 +1,17 @@
 import express from "express";
-import { adminOnly, protect } from "../middleware/authMiddleware.js"; // 🟢 THÊM
+import { updateUserProfile } from "../controllers/userController.js";
+import { adminOnly, protect } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 
 const router = express.Router();
 
-// 🟢 SỬA: Chỉ admin mới được xem tất cả user
+router.put("/profile", protect, updateUserProfile);
+
 router.get("/", protect, adminOnly, async (req, res) => {
 	const users = await User.find().select("-password");
 	res.json(users);
 });
 
-// 🟢 THÊM: API Khóa người dùng
 router.put("/:id/lock", protect, adminOnly, async (req, res) => {
 	try {
 		const user = await User.findByIdAndUpdate(
@@ -24,7 +25,6 @@ router.put("/:id/lock", protect, adminOnly, async (req, res) => {
 	}
 });
 
-// 🟢 THÊM: API Mở khóa người dùng
 router.put("/:id/unlock", protect, adminOnly, async (req, res) => {
 	try {
 		const user = await User.findByIdAndUpdate(

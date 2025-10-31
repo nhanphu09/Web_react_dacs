@@ -1,7 +1,5 @@
-// backend/models/Order.js
 import mongoose from "mongoose";
 
-// 🟢 THÊM SCHEMA PHỤ CHO ĐỊA CHỈ
 const shippingAddressSchema = new mongoose.Schema({
 	name: { type: String, required: true },
 	email: { type: String, required: true },
@@ -29,7 +27,6 @@ const orderSchema = new mongoose.Schema(
 			enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
 			default: "Pending",
 		},
-		// 🟢 THÊM 2 DÒNG NÀY
 		shippingAddress: { type: shippingAddressSchema, required: true },
 		paymentMethod: { type: String, required: true, default: "COD" },
 	},

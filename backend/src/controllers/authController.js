@@ -16,7 +16,6 @@ export const register = async (req, res) => {
 			return res.status(400).json({ message: "Email already exists" });
 		const user = await User.create({ name, email, password });
 
-		// SỬA Ở ĐÂY: Thêm 'isAdmin' vào
 		res.status(201).json({
 			token: genToken(user),
 			user: {
@@ -24,7 +23,7 @@ export const register = async (req, res) => {
 				name: user.name,
 				email: user.email,
 				role: user.role,
-				isAdmin: user.isAdmin, // <--- ĐÃ THÊM
+				isAdmin: user.isAdmin,
 			},
 		});
 	} catch (err) {
@@ -42,7 +41,6 @@ export const login = async (req, res) => {
 			return res.status(401).json({ message: "Invalid credentials" });
 		if (user.locked) return res.status(403).json({ message: "Account locked" });
 
-		// SỬA Ở ĐÂY: Thêm 'isAdmin' vào
 		res.json({
 			token: genToken(user),
 			user: {
@@ -50,7 +48,7 @@ export const login = async (req, res) => {
 				name: user.name,
 				email: user.email,
 				role: user.role,
-				isAdmin: user.isAdmin, // <--- ĐÃ THÊM
+				isAdmin: user.isAdmin,
 			},
 		});
 	} catch (err) {

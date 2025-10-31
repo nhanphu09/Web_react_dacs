@@ -15,9 +15,6 @@ import { createAdminIfMissing } from "./utils/seedAdmin.js";
 dotenv.config();
 const app = express();
 
-// ✅ Cấu hình CORS đúng thứ tự
-//const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
-
 app.use(
 	cors({
 		origin: "http://localhost:5173",
@@ -27,7 +24,6 @@ app.use(
 	})
 );
 
-// ✅ Đảm bảo preflight OPTIONS cũng được xử lý
 // app.options(
 // 	"/*",
 // 	cors({
