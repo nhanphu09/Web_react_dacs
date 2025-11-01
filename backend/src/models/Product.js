@@ -10,6 +10,11 @@ const reviewSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
+const specSchema = new mongoose.Schema({
+	key: { type: String, required: true, trim: true },
+	value: { type: String, required: true, trim: true },
+});
+
 const productSchema = new mongoose.Schema(
 	{
 		title: { type: String, required: true, trim: true },
@@ -33,6 +38,7 @@ const productSchema = new mongoose.Schema(
 		numReviews: { type: Number, default: 0 },
 		sold: { type: Number, default: 0 },
 		promotions: [String],
+		specs: [specSchema],
 	},
 	{ timestamps: true }
 );

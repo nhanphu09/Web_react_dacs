@@ -1,4 +1,4 @@
-import { Edit, Package, Plus, Trash2 } from "lucide-react"; // 🟢 THÊM: Icon Edit
+import { Edit, Package, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../api/client";
@@ -8,17 +8,18 @@ export default function AdminProducts() {
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 
-	// 🟢 SỬA: Thêm 'stock' và '_id' (để biết đang Sửa hay Thêm)
-	const [model, setModel] = useState({
-		_id: null, // null = tạo mới, có id = đang sửa
+	const initialModelState = {
+		_id: null,
 		title: "",
 		price: 0,
 		description: "",
 		category: "",
 		brand: "",
 		image: "",
-		stock: 0, // <-- THÊM TỒN KHO
-	});
+		stock: 0,
+		specs: [],
+	};
+	const [model, setModel] = useState(initialModelState);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -38,21 +39,10 @@ export default function AdminProducts() {
 		fetchData();
 	}, []);
 
-	// 🟢 THÊM: Hàm clear form
 	const resetForm = () => {
-		setModel({
-			_id: null,
-			title: "",
-			price: 0,
-			description: "",
-			category: "",
-			brand: "",
-			image: "",
-			stock: 0,
-		});
+		setModel(initialModelState);
 	};
 
-	// 🟢 SỬA: Hàm này giờ xử lý cả Thêm và Sửa
 	const handleSubmit = async () => {
 		if (!model.title || model.price <= 0 || !model.category || !model.brand) {
 			toast.warn("Vui lòng nhập đầy đủ Tên, Giá, Danh mục và Thương hiệu!");
@@ -61,17 +51,15 @@ export default function AdminProducts() {
 
 		try {
 			if (model._id) {
-				// --- Logic Sửa (UPDATE) ---
 				const res = await api.put(`/products/${model._id}`, model);
 				setProducts(products.map((p) => (p._id === model._id ? res.data : p)));
 				toast.success("Cập nhật sản phẩm thành công!");
 			} else {
-				// --- Logic Thêm (CREATE) ---
 				const res = await api.post("/products", model);
 				setProducts([res.data, ...products]);
 				toast.success("Thêm sản phẩm thành công!");
 			}
-			resetForm(); // Xóa form sau khi thành công
+			resetForm();
 		} catch (err) {
 			toast.error("Thao tác thất bại. Vui lòng thử lại.");
 		}
@@ -84,14 +72,31 @@ export default function AdminProducts() {
 		toast.success("Xóa sản phẩm thành công!");
 	};
 
-	// 🟢 THÊM: Hàm đưa sản phẩm lên form để Sửa
 	const handleEdit = (product) => {
 		setModel({
 			...product,
 			category: product.category?._id || product.category,
 			brand: product.brand?._id || product.brand,
 		});
-		window.scrollTo(0, 0); // Cuộn lên đầu trang
+		window.scrollTo(0, 0);
+	};
+
+	const handleSpecChange = (index, field, value) => {
+		const newSpecs = [...model.specs];
+		newSpecs[index][field] = value;
+		setModel({ ...model, specs: newSpecs });
+	};
+
+	const addSpec = () => {
+		setModel({
+			...model,
+			specs: [...model.specs, { key: "", value: "" }],
+		});
+	};
+
+	const removeSpec = (index) => {
+		const newSpecs = model.specs.filter((_, i) => i !== index);
+		setModel({ ...model, specs: newSpecs });
 	};
 
 	return (
@@ -105,13 +110,11 @@ export default function AdminProducts() {
 			<div className="bg-white rounded-xl shadow p-6 mb-8">
 				<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
 					<Plus className="text-green-600" />
-					{/* 🟢 SỬA: Tiêu đề động */}
 					{model._id ? "Đang sửa sản phẩm" : "Thêm sản phẩm mới"}
 				</h3>
 
-				{/* 🟢 SỬA: Sắp xếp form bằng GRID */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{/* Cột 1 */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					{/* Cột 1: Thông tin cơ bản */}
 					<div className="space-y-4">
 						<input
 							type="text"
@@ -120,28 +123,26 @@ export default function AdminProducts() {
 							onChange={(e) => setModel({ ...model, title: e.target.value })}
 							className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
 						/>
-						<input
-							type="number"
-							placeholder="Giá (*)"
-							value={model.price}
-							onChange={(e) =>
-								setModel({ ...model, price: Number(e.target.value) })
-							}
-							className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
-						/>
-						{/* 🟢 THÊM: Ô nhập tồn kho */}
-						<input
-							type="number"
-							placeholder="Tồn kho"
-							value={model.stock}
-							onChange={(e) =>
-								setModel({ ...model, stock: Number(e.target.value) })
-							}
-							className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
-						/>
-					</div>
-					{/* Cột 2 */}
-					<div className="space-y-4">
+						<div className="grid grid-cols-2 gap-4">
+							<input
+								type="number"
+								placeholder="Giá (*)"
+								value={model.price}
+								onChange={(e) =>
+									setModel({ ...model, price: Number(e.target.value) })
+								}
+								className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+							/>
+							<input
+								type="number"
+								placeholder="Tồn kho"
+								value={model.stock}
+								onChange={(e) =>
+									setModel({ ...model, stock: Number(e.target.value) })
+								}
+								className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+							/>
+						</div>
 						<select
 							value={model.category}
 							onChange={(e) => setModel({ ...model, category: e.target.value })}
@@ -171,23 +172,64 @@ export default function AdminProducts() {
 							onChange={(e) => setModel({ ...model, image: e.target.value })}
 							className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
 						/>
+						<textarea
+							placeholder="Mô tả (Dùng Enter để xuống dòng)"
+							value={model.description}
+							onChange={(e) =>
+								setModel({ ...model, description: e.target.value })
+							}
+							className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none"
+							rows={4}
+						/>
 					</div>
-					{/* Cột 3 */}
-					<textarea
-						placeholder="Mô tả"
-						value={model.description}
-						onChange={(e) =>
-							setModel({ ...model, description: e.target.value })
-						}
-						className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary outline-none h-full"
-						rows={5}
-					/>
+
+					{/* Cột 2 - Thông số kỹ thuật (Specs) */}
+					<div className="space-y-4">
+						<h4 className="font-semibold text-gray-700">Thông số kỹ thuật</h4>
+						<div className="space-y-3 max-h-60 overflow-y-auto pr-2 border p-3 rounded-lg">
+							{model.specs.map((spec, index) => (
+								<div key={index} className="flex items-start gap-2">
+									<input
+										type="text"
+										placeholder="Tên thông số (ví dụ: RAM)"
+										value={spec.key}
+										onChange={(e) =>
+											handleSpecChange(index, "key", e.target.value)
+										}
+										className="w-1/2 border rounded-lg px-3 py-2"
+									/>
+									<textarea
+										placeholder="Giá trị (dùng Enter để xuống dòng)"
+										value={spec.value}
+										onChange={(e) =>
+											handleSpecChange(index, "value", e.target.value)
+										}
+										className="w-1/2 border rounded-lg px-3 py-2"
+										rows={2}
+									/>
+									<button
+										type="button"
+										onClick={() => removeSpec(index)}
+										className="text-red-500 p-2 hover:bg-red-100 rounded-full">
+										<X size={18} />
+									</button>
+								</div>
+							))}
+						</div>
+						<button
+							type="button"
+							onClick={addSpec}
+							className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition text-sm">
+							Thêm thông số
+						</button>
+					</div>
 				</div>
 
-				<div className="mt-4 flex justify-end gap-3">
-					{/* Nút Hủy (chỉ hiện khi đang Sửa) */}
+				{/* Nút bấm */}
+				<div className="mt-6 flex justify-end gap-3 border-t pt-4">
 					{model._id && (
 						<button
+							type="button"
 							onClick={resetForm}
 							className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition">
 							Hủy
@@ -201,7 +243,7 @@ export default function AdminProducts() {
 				</div>
 			</div>
 
-			{/* 🟢 SỬA: DANH SÁCH SẢN PHẨM (DÙNG BẢNG) */}
+			{/* 🟢 SỬA: KHÔI PHỤC LẠI PHẦN BẢNG SẢN PHẨM */}
 			<div className="bg-white rounded-xl shadow p-6 overflow-x-auto">
 				<h3 className="text-xl font-semibold mb-4 text-gray-800">
 					📦 Danh sách sản phẩm ({products.length})

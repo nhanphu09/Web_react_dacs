@@ -12,6 +12,40 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import api from "../api/client";
 import ProductCard from "../components/ProductCard";
 
+// 🟢 TẠO: Component Bảng Thông số
+const SpecsTable = ({ specs }) => {
+	if (!specs || specs.length === 0) {
+		return null;
+	}
+
+	return (
+		<div className="py-8 border-b border-gray-200">
+			<h2 className="text-2xl font-bold text-gray-800 mb-4">
+				Thông số kỹ thuật
+			</h2>
+			<table className="w-full max-w-lg border-collapse">
+				<tbody>
+					{specs.map((spec, index) => (
+						<tr
+							key={index}
+							className={`border-b border-gray-200 ${
+								index % 2 === 0 ? "bg-gray-50" : "bg-white"
+							}`}>
+							<td className="py-3 px-4 font-medium text-gray-600 w-1/3">
+								{spec.key}
+							</td>
+							{/* Thêm class 'whitespace-pre-line' để xuống dòng */}
+							<td className="py-3 px-4 text-gray-800 whitespace-pre-line">
+								{spec.value}
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+};
+
 export default function ProductDetail() {
 	const { id } = useParams();
 	const navigate = useNavigate();
@@ -59,7 +93,7 @@ export default function ProductDetail() {
 				product: id,
 				title: product.title,
 				price: product.price,
-				image: product.image, // Thêm image
+				image: product.image,
 				qty: Number(qty),
 			});
 		localStorage.setItem("cart", JSON.stringify(cart));
@@ -71,8 +105,6 @@ export default function ProductDetail() {
 			await api.post(`/products/${id}/reviews`, {
 				rating,
 				comment,
-				userId: "client", // (Sẽ được thay bằng req.user ở backend)
-				name: "You", // (Sẽ được thay bằng req.user.name ở backend)
 			});
 			toast.success("Gửi đánh giá thành công!");
 			fetchProduct();
@@ -88,12 +120,13 @@ export default function ProductDetail() {
 	const productImages = product.images || [product.image];
 
 	return (
-		<div className="max-w-6xl mx-auto p-6 mt-10">
-			{/* Phần 1: Thông tin sản phẩm */}
-			<div className="bg-white rounded-2xl shadow-lg p-6">
-				<div className="grid md:grid-cols-2 gap-8">
-					{/* CỘT 1 - THƯ VIỆN ẢNH */}
-					<div>
+		// 🟢 SỬA: Nền trắng, không còn 'space-y-8'
+		<div className="bg-white">
+			<div className="max-w-6xl mx-auto p-6 mt-10">
+				{/* === KHỐI 1: BỐ CỤC 2 CỘT (GRID) === */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-8 border-b border-gray-200">
+					{/* CỘT 1 (Trái) - THƯ VIỆN ẢNH (chiếm 2/3) */}
+					<div className="lg:col-span-2">
 						<Swiper
 							modules={[FreeMode, Navigation, Thumbs]}
 							spaceBetween={10}
@@ -137,12 +170,12 @@ export default function ProductDetail() {
 						</Swiper>
 					</div>
 
-					{/* CỘT 2 - THÔNG TIN SẢN PHẨM */}
-					<div>
+					{/* CỘT 2 (Phải) - THÔNG TIN (chiếm 1/3, STICKY) */}
+					<div className="lg:col-span-1 h-fit lg:sticky lg:top-24 space-y-4">
 						<h2 className="text-3xl font-bold text-gray-800 mb-2">
 							{product.title}
 						</h2>
-						<p className="text-gray-500 mb-1">
+						<p className="text-sm text-gray-500 mb-2">
 							Thương hiệu:{" "}
 							<span className="font-medium text-primary">
 								{product.brand?.name || "Chưa rõ"}
@@ -171,13 +204,10 @@ export default function ProductDetail() {
 								</span>
 							)}
 						</div>
-
-						{/* HỘP KHUYẾN MÃI & MÔ TẢ */}
 						<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
 							<h4 className="font-bold text-lg text-primary mb-2 flex items-center gap-1">
-								<Tag size={18} /> Khuyến mãi & Thông tin
+								<Tag size={18} /> Khuyến mãi
 							</h4>
-
 							{product.promotions && product.promotions.length > 0 ? (
 								<ul className="space-y-1 text-sm text-gray-700 list-disc list-inside">
 									{product.promotions.map((promo, index) => (
@@ -189,18 +219,7 @@ export default function ProductDetail() {
 									Sản phẩm hiện không có khuyến mãi.
 								</p>
 							)}
-
-							{product.description && (
-								<>
-									<hr className="my-3 border-gray-200" />
-									<p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-										{product.description}
-									</p>
-								</>
-							)}
 						</div>
-
-						{/* Input số lượng */}
 						<div className="flex items-center gap-3 mb-5">
 							<label className="text-sm font-medium text-gray-700">
 								Số lượng:
@@ -215,41 +234,79 @@ export default function ProductDetail() {
 								disabled={product.stock === 0}
 							/>
 						</div>
-
-						{/* Nút bấm */}
 						<div className="flex flex-col sm:flex-row gap-4">
-							<button
-								onClick={addToCart}
-								disabled={product.stock === 0}
-								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-								🛒 Thêm vào giỏ
-							</button>
 							<button
 								onClick={() => {
 									addToCart();
 									navigate("/checkout");
 								}}
 								disabled={product.stock === 0}
-								className="w-full border border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg">
 								💳 Mua ngay
+							</button>
+							<button
+								onClick={addToCart}
+								disabled={product.stock === 0}
+								className="w-full border border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+								🛒 Thêm vào giỏ
 							</button>
 						</div>
 					</div>
 				</div>
+				{/* === KẾT THÚC KHỐI 1 === */}
 
-				{/* 🟢 SỬA: KHU VỰC ĐÁNH GIÁ (FULL CODE) */}
-				<div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-					{/* Cột 1: Hiển thị reviews */}
-					<div className="border-t pt-6">
-						<h3 className="text-xl font-semibold mb-4 text-gray-800">
-							Đánh giá từ khách hàng ({product.reviews?.length || 0})
-						</h3>
+				{/* === KHỐI 2 - BẢNG THÔNG SỐ KỸ THUẬT === */}
+				<SpecsTable specs={product.specs} />
+
+				{/* === KHỐI 3 - MÔ TẢ CHI TIẾT === */}
+				{product.description && (
+					<div className="py-8 border-b border-gray-200">
+						<h2 className="text-2xl font-bold text-gray-800 mb-4">
+							Mô tả chi tiết sản phẩm
+						</h2>
+						<p className="text-gray-700 leading-relaxed whitespace-pre-line">
+							{product.description}
+						</p>
+					</div>
+				)}
+
+				{/* === KHỐI 4: SẢN PHẨM LIÊN QUAN === */}
+				{relatedProducts.length > 0 && (
+					<div className="py-8 border-b border-gray-200">
+						<h2 className="text-2xl font-bold text-gray-800 mb-6">
+							Sản phẩm liên quan
+						</h2>
+						<Swiper
+							modules={[Navigation]}
+							navigation
+							spaceBetween={16}
+							slidesPerView={1.5}
+							breakpoints={{
+								640: { slidesPerView: 2 },
+								768: { slidesPerView: 3 },
+								1024: { slidesPerView: 4 },
+							}}
+							className="!pb-4">
+							{relatedProducts.map((p) => (
+								<SwiperSlide key={p._id} className="h-full">
+									<ProductCard product={p} />
+								</SwiperSlide>
+							))}
+						</Swiper>
+					</div>
+				)}
+
+				{/* === KHỐI 5: ĐÁNH GIÁ === */}
+				<div className="py-8">
+					<h2 className="text-2xl font-bold text-gray-800 mb-4">
+						Đánh giá từ khách hàng ({product.reviews?.length || 0})
+					</h2>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						{/* Cột 1: Hiển thị reviews */}
 						<div className="space-y-4 max-h-96 overflow-y-auto">
 							{product.reviews?.length ? (
 								product.reviews.map((r, i) => (
-									<div
-										key={i} // 🟢 SỬA: Dùng 'i' hoặc 'r._id' nếu có
-										className="border-b py-3 flex gap-3">
+									<div key={i} className="border-b py-3 flex gap-3">
 										<div className="bg-gray-200 p-2 rounded-full h-10 w-10 flex-shrink-0 flex items-center justify-center">
 											<User size={18} className="text-gray-600" />
 										</div>
@@ -277,71 +334,45 @@ export default function ProductDetail() {
 								<p className="text-gray-500 italic">Chưa có đánh giá nào.</p>
 							)}
 						</div>
-					</div>
 
-					{/* Cột 2: Viết review */}
-					<div className="border-t pt-6">
-						<h4 className="text-xl font-semibold mb-3 text-gray-800">
-							Viết đánh giá của bạn
-						</h4>
-						<div className="space-y-3">
-							<div className="flex items-center gap-3">
-								<label className="text-sm font-medium text-gray-700">
-									Đánh giá:
-								</label>
-								<select
-									value={rating}
-									onChange={(e) => setRating(e.target.value)}
-									className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary">
-									{[5, 4, 3, 2, 1].map((n) => (
-										<option key={n} value={n}>
-											{n} sao
-										</option>
-									))}
-								</select>
+						{/* Cột 2: Viết review */}
+						<div>
+							<h4 className="text-xl font-semibold mb-3 text-gray-800">
+								Viết đánh giá của bạn
+							</h4>
+							<div className="space-y-3">
+								<div className="flex items-center gap-3">
+									<label className="text-sm font-medium text-gray-700">
+										Đánh giá:
+									</label>
+									<select
+										value={rating}
+										onChange={(e) => setRating(e.target.value)}
+										className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary">
+										{[5, 4, 3, 2, 1].map((n) => (
+											<option key={n} value={n}>
+												{n} sao
+											</option>
+										))}
+									</select>
+								</div>
+								<textarea
+									rows="4"
+									value={comment}
+									onChange={(e) => setComment(e.target.value)}
+									className="border border-gray-300 rounded-md w-full p-3 focus:ring-2 focus:ring-primary"
+									placeholder="Nhập nội dung đánh giá của bạn..."
+								/>
+								<button
+									onClick={postReview}
+									className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
+									Gửi đánh giá
+								</button>
 							</div>
-							<textarea
-								rows="4"
-								value={comment}
-								onChange={(e) => setComment(e.target.value)}
-								className="border border-gray-300 rounded-md w-full p-3 focus:ring-2 focus:ring-primary"
-								placeholder="Nhập nội dung đánh giá của bạn..."
-							/>
-							<button
-								onClick={postReview}
-								className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all">
-								Gửi đánh giá
-							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			{/* PHẦN SẢN PHẨM LIÊN QUAN */}
-			{relatedProducts.length > 0 && (
-				<div className="bg-white rounded-2xl shadow-lg p-6 mt-10">
-					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4">
-						Sản phẩm liên quan
-					</h2>
-					<Swiper
-						modules={[Navigation]}
-						navigation
-						spaceBetween={16}
-						slidesPerView={1.5}
-						breakpoints={{
-							640: { slidesPerView: 2 },
-							768: { slidesPerView: 3 },
-							1024: { slidesPerView: 4 },
-						}}
-						className="!pb-4">
-						{relatedProducts.map((p) => (
-							<SwiperSlide key={p._id} className="h-full">
-								<ProductCard product={p} />
-							</SwiperSlide>
-						))}
-					</Swiper>
-				</div>
-			)}
 		</div>
 	);
 }

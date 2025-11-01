@@ -55,7 +55,7 @@ export const getProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
 	try {
-		const { title, description, price, category, stock, brand, image } =
+		const { title, description, price, category, stock, brand, image, specs } =
 			req.body;
 		const product = new Product({
 			title,
@@ -65,6 +65,7 @@ export const createProduct = async (req, res) => {
 			stock,
 			brand,
 			image,
+			specs,
 		});
 		await product.save();
 		res.status(201).json(product);
@@ -75,7 +76,7 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
 	try {
-		const { title, description, price, category, stock, brand, image } =
+		const { title, description, price, category, stock, brand, image, specs } =
 			req.body;
 
 		const product = await Product.findById(req.params.id);
@@ -85,9 +86,10 @@ export const updateProduct = async (req, res) => {
 			product.description = description || product.description;
 			product.price = price || product.price;
 			product.category = category || product.category;
-			product.stock = stock || product.stock;
+			product.stock = stock !== undefined ? stock : product.stock;
 			product.brand = brand || product.brand;
 			product.image = image || product.image;
+			product.specs = specs || product.specs;
 
 			const updatedProduct = await product.save();
 			res.json(updatedProduct);
