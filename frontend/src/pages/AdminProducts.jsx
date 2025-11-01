@@ -18,6 +18,7 @@ export default function AdminProducts() {
 		image: "",
 		stock: 0,
 		specs: [],
+		promotions: [],
 	};
 	const [model, setModel] = useState(initialModelState);
 
@@ -81,22 +82,40 @@ export default function AdminProducts() {
 		window.scrollTo(0, 0);
 	};
 
+	// --- Hàm xử lý Specs ---
 	const handleSpecChange = (index, field, value) => {
 		const newSpecs = [...model.specs];
 		newSpecs[index][field] = value;
 		setModel({ ...model, specs: newSpecs });
 	};
-
 	const addSpec = () => {
 		setModel({
 			...model,
 			specs: [...model.specs, { key: "", value: "" }],
 		});
 	};
-
 	const removeSpec = (index) => {
 		const newSpecs = model.specs.filter((_, i) => i !== index);
 		setModel({ ...model, specs: newSpecs });
+	};
+
+	// Các hàm xử lý Promotions
+	const handlePromoChange = (index, value) => {
+		const newPromos = [...model.promotions];
+		newPromos[index] = value;
+		setModel({ ...model, promotions: newPromos });
+	};
+
+	const addPromo = () => {
+		setModel({
+			...model,
+			promotions: [...model.promotions, ""],
+		});
+	};
+
+	const removePromo = (index) => {
+		const newPromos = model.promotions.filter((_, i) => i !== index);
+		setModel({ ...model, promotions: newPromos });
 	};
 
 	return (
@@ -183,45 +202,78 @@ export default function AdminProducts() {
 						/>
 					</div>
 
-					{/* Cột 2 - Thông số kỹ thuật (Specs) */}
-					<div className="space-y-4">
-						<h4 className="font-semibold text-gray-700">Thông số kỹ thuật</h4>
-						<div className="space-y-3 max-h-60 overflow-y-auto pr-2 border p-3 rounded-lg">
-							{model.specs.map((spec, index) => (
-								<div key={index} className="flex items-start gap-2">
-									<input
-										type="text"
-										placeholder="Tên thông số (ví dụ: RAM)"
-										value={spec.key}
-										onChange={(e) =>
-											handleSpecChange(index, "key", e.target.value)
-										}
-										className="w-1/2 border rounded-lg px-3 py-2"
-									/>
-									<textarea
-										placeholder="Giá trị (dùng Enter để xuống dòng)"
-										value={spec.value}
-										onChange={(e) =>
-											handleSpecChange(index, "value", e.target.value)
-										}
-										className="w-1/2 border rounded-lg px-3 py-2"
-										rows={2}
-									/>
-									<button
-										type="button"
-										onClick={() => removeSpec(index)}
-										className="text-red-500 p-2 hover:bg-red-100 rounded-full">
-										<X size={18} />
-									</button>
-								</div>
-							))}
+					{/* Cột 2 - Gộp Specs và Promotions */}
+					<div className="space-y-6">
+						{/* Phần Thông số kỹ thuật */}
+						<div className="space-y-4">
+							<h4 className="font-semibold text-gray-700">Thông số kỹ thuật</h4>
+							<div className="space-y-3 max-h-48 overflow-y-auto pr-2 border p-3 rounded-lg">
+								{model.specs.map((spec, index) => (
+									<div key={index} className="flex items-start gap-2">
+										<input
+											type="text"
+											placeholder="Tên thông số (ví dụ: RAM)"
+											value={spec.key}
+											onChange={(e) =>
+												handleSpecChange(index, "key", e.target.value)
+											}
+											className="w-1/2 border rounded-lg px-3 py-2"
+										/>
+										<textarea
+											placeholder="Giá trị (dùng Enter để xuống dòng)"
+											value={spec.value}
+											onChange={(e) =>
+												handleSpecChange(index, "value", e.target.value)
+											}
+											className="w-1/2 border rounded-lg px-3 py-2"
+											rows={2}
+										/>
+										<button
+											type="button"
+											onClick={() => removeSpec(index)}
+											className="text-red-500 p-2 hover:bg-red-100 rounded-full">
+											<X size={18} />
+										</button>
+									</div>
+								))}
+							</div>
+							<button
+								type="button"
+								onClick={addSpec}
+								className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition text-sm">
+								Thêm thông số
+							</button>
 						</div>
-						<button
-							type="button"
-							onClick={addSpec}
-							className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition text-sm">
-							Thêm thông số
-						</button>
+
+						{/* Phần Khuyến mãi */}
+						<div className="space-y-4">
+							<h4 className="font-semibold text-gray-700">Khuyến mãi</h4>
+							<div className="space-y-3 max-h-48 overflow-y-auto pr-2 border p-3 rounded-lg">
+								{model.promotions.map((promo, index) => (
+									<div key={index} className="flex items-center gap-2">
+										<input
+											type="text"
+											placeholder="Nội dung khuyến mãi..."
+											value={promo}
+											onChange={(e) => handlePromoChange(index, e.target.value)}
+											className="w-full border rounded-lg px-3 py-2"
+										/>
+										<button
+											type="button"
+											onClick={() => removePromo(index)}
+											className="text-red-500 p-2 hover:bg-red-100 rounded-full">
+											<X size={18} />
+										</button>
+									</div>
+								))}
+							</div>
+							<button
+								type="button"
+								onClick={addPromo}
+								className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition text-sm">
+								Thêm khuyến mãi
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -243,7 +295,7 @@ export default function AdminProducts() {
 				</div>
 			</div>
 
-			{/* 🟢 SỬA: KHÔI PHỤC LẠI PHẦN BẢNG SẢN PHẨM */}
+			{/* DANH SÁCH SẢN PHẨM (DÙNG BẢNG) */}
 			<div className="bg-white rounded-xl shadow p-6 overflow-x-auto">
 				<h3 className="text-xl font-semibold mb-4 text-gray-800">
 					📦 Danh sách sản phẩm ({products.length})

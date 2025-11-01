@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -9,15 +9,15 @@ import {
 	Headset,
 	LayoutGrid,
 	ShieldCheck,
-	Sparkles, // Biểu tượng cho "Mới nhất"
+	Sparkles,
 	Tag,
 	Truck,
-	Zap, // 🟢 THÊM: Biểu tượng cho "Nổi bật"
+	Zap,
 } from "lucide-react";
 import api from "../api/client";
 import ProductCard from "../components/ProductCard";
 
-// (SkeletonCard giữ nguyên)
+// (SkeletonCard)
 const SkeletonCard = () => (
 	<div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 animate-pulse w-64 flex-none">
 		<div className="w-full h-48 bg-gray-200 rounded-lg mb-3"></div>
@@ -29,16 +29,16 @@ const SkeletonCard = () => (
 );
 
 export default function Home() {
-	// State (giữ nguyên)
+	// State
 	const [featuredProducts, setFeaturedProducts] = useState([]);
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [bestSellers, setBestSellers] = useState([]);
-	// 🟢 THÊM: State cho khu vực sản phẩm mới
+	// State cho khu vực sản phẩm mới
 	const [hotElectronics, setHotElectronics] = useState([]);
 
-	// 🟢 SỬA: Tách useEffect để tải "hotElectronics" sau khi có danh mục
+	// Tách useEffect để tải "hotElectronics" sau khi có danh mục
 	useEffect(() => {
 		const fetchCoreData = async () => {
 			try {
@@ -64,7 +64,7 @@ export default function Home() {
 		fetchCoreData();
 	}, []);
 
-	// 🟢 THÊM: useEffect này chạy KHI categories được tải xong
+	// useEffect này chạy KHI categories được tải xong
 	useEffect(() => {
 		// Nếu chưa có danh mục thì không làm gì cả
 		if (categories.length === 0) return;
@@ -88,7 +88,7 @@ export default function Home() {
 		fetchHotElectronics();
 	}, [categories]); // ⬅️ Chạy lại khi 'categories' thay đổi
 
-	// Helper render băng chuyền danh mục (giữ nguyên)
+	// Helper render băng chuyền danh mục
 	const renderCategoryCarousel = (items, type) => (
 		<Swiper
 			modules={[Navigation]}
@@ -121,7 +121,7 @@ export default function Home() {
 
 	return (
 		<div className="min-h-screen bg-gray-50 pb-20">
-			{/* 1. HERO BANNER (Giữ nguyên) */}
+			{/* 1. HERO BANNER */}
 			<div className="max-w-7xl mx-auto px-4 pt-10">
 				{/* ... (Mã Hero Banner của bạn) ... */}
 				<div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-lg h-80">
@@ -146,7 +146,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 2. KHU VỰC TÍNH NĂNG (Giữ nguyên) */}
+			{/* 2. KHU VỰC TÍNH NĂNG */}
 			<div className="max-w-7xl mx-auto px-4 mt-12">
 				{/* ... (Mã "Trust Signals" của bạn) ... */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -182,7 +182,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 3. KHÁM PHÁ DANH MỤC (Giữ nguyên) */}
+			{/* 3. KHÁM PHÁ DANH MỤC */}
 			<div className="max-w-7xl mx-auto mt-12 px-4">
 				<div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 md:p-8">
 					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4 flex items-center gap-2">
@@ -196,7 +196,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 4. SẢN PHẨM MỚI NHẤT (Giữ nguyên) */}
+			{/* 4. SẢN PHẨM MỚI NHẤT */}
 			<div className="max-w-7xl mx-auto px-4 mt-12">
 				<div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 md:p-8">
 					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4 flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 5. 🟢 THÊM: KHU VỰC BANNERS QUẢNG CÁO */}
+			{/* 5.KHU VỰC BANNERS QUẢNG CÁO */}
 			<div className="max-w-7xl mx-auto px-4 mt-12">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					<Link
@@ -254,7 +254,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 6. 🟢 THÊM: KHU VỰC SẢN PHẨM NỔI BẬT (THEO DANH MỤC) */}
+			{/* 6.KHU VỰC SẢN PHẨM NỔI BẬT (THEO DANH MỤC) */}
 			{!loading && hotElectronics.length > 0 && (
 				<div className="max-w-7xl mx-auto px-4 mt-12">
 					<div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 md:p-8">
@@ -282,7 +282,7 @@ export default function Home() {
 				</div>
 			)}
 
-			{/* 7. SẢN PHẨM BÁN CHẠY (Giữ nguyên) */}
+			{/* 7. SẢN PHẨM BÁN CHẠY */}
 			<div className="max-w-7xl mx-auto px-4 mt-12">
 				<div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 md:p-8">
 					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4 flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			{/* 8. KHÁM PHÁ THƯƠNG HIỆU (Giữ nguyên) */}
+			{/* 8. KHÁM PHÁ THƯƠNG HIỆU */}
 			<div className="max-w-7xl mx-auto mt-12 px-4">
 				<div className="bg-white rounded-2xl shadow-lg overflow-hidden p-6 md:p-8">
 					<h2 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-4 flex items-center gap-2">

@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-// 🟢 NHẬN THÊM PROP 'tag'
 export default function ProductCard({ product, tag }) {
 	const [isAdded, setIsAdded] = useState(false);
 
 	const handleAddToCart = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-		// ... (logic giỏ hàng của bạn giữ nguyên)
 		const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 		const exist = cart.find((i) => i.product === product._id);
 
@@ -34,9 +32,8 @@ export default function ProductCard({ product, tag }) {
 	};
 
 	return (
-		// 🟢 SỬA: Thêm 'relative' và 'h-full'
 		<div className="group relative bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition duration-200 p-4 flex flex-col h-full">
-			{/* 🟢 THÊM: Phần hiển thị Tag */}
+			{/* Phần hiển thị Tag */}
 			{tag && (
 				<div
 					className={`absolute top-3 left-3 text-white text-xs font-bold px-2 py-1 rounded z-10 ${
@@ -59,7 +56,7 @@ export default function ProductCard({ product, tag }) {
 				)}
 			</div>
 
-			{/* Căn giữa (giữ nguyên) */}
+			{/* Căn giữa */}
 			<div className="text-center">
 				<h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
 					{product.title}
@@ -81,7 +78,7 @@ export default function ProductCard({ product, tag }) {
 				</p>
 			</div>
 
-			{/* Buttons (giữ nguyên) */}
+			{/* Buttons */}
 			<div
 				className="absolute bottom-4 left-4 right-4 grid grid-cols-2 gap-2 transition-all duration-300 transform
                           opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0">

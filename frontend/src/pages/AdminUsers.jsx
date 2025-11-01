@@ -1,4 +1,4 @@
-import { Lock, Search, Unlock, Users } from "lucide-react"; // 🟢 THÊM ICONS
+import { Lock, Search, Unlock, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../api/client";
@@ -7,12 +7,12 @@ export default function AdminUsers() {
 	const [users, setUsers] = useState([]);
 	const [loading, setLoading] = useState(true);
 
-	// 🟢 THÊM: State cho Tìm kiếm & Phân trang
+	// State cho Tìm kiếm & Phân trang
 	const [keyword, setKeyword] = useState("");
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 
-	// 🟢 SỬA: useEffect để xử lý Phân trang/Tìm kiếm
+	// useEffect để xử lý Phân trang/Tìm kiếm
 	useEffect(() => {
 		const fetchUsers = async () => {
 			try {
@@ -46,7 +46,7 @@ export default function AdminUsers() {
 		toast.success("Đã mở khóa tài khoản.");
 	};
 
-	// 🟢 THÊM: Hàm xử lý tìm kiếm
+	// Hàm xử lý tìm kiếm
 	const handleSearch = (e) => {
 		e.preventDefault();
 		setPage(1); // Reset về trang 1 khi tìm kiếm
@@ -58,7 +58,7 @@ export default function AdminUsers() {
 				<Users className="text-primary" /> Quản lý người dùng
 			</h2>
 
-			{/* 🟢 THÊM: THANH TÌM KIẾM */}
+			{/* THANH TÌM KIẾM */}
 			<div className="bg-white rounded-xl shadow p-4 mb-6">
 				<form
 					onSubmit={handleSearch}
@@ -127,7 +127,7 @@ export default function AdminUsers() {
 											</span>
 										</td>
 										<td className="py-3 px-4 text-center">
-											{/* 🟢 SỬA: Đổi sang nút Icon */}
+											{/*  Đổi sang nút Icon */}
 											{u.role !== "admin" && ( // Ngăn admin tự khóa mình
 												<>
 													{!u.locked ? (
@@ -153,7 +153,7 @@ export default function AdminUsers() {
 							</tbody>
 						</table>
 
-						{/* 🟢 THÊM: THANH PHÂN TRANG */}
+						{/* THANH PHÂN TRANG */}
 						{totalPages > 1 && (
 							<div className="flex justify-center items-center gap-4 mt-6">
 								<button

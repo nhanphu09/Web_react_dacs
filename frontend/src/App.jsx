@@ -32,7 +32,6 @@ export default function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/products" element={<Products />} />{" "}
-				{/* ✅ thêm route này */}
 				<Route path="/product/:id" element={<ProductDetail />} />
 				{/* Protected for logged users */}
 				<Route

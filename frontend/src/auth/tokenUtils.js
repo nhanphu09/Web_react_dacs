@@ -1,6 +1,3 @@
-// frontend/src/auth/tokenUtils.js
-
-// 🔹 Lưu user vào localStorage
 export const saveUser = (userData) => {
 	localStorage.setItem("user", JSON.stringify(userData));
 };

@@ -2,7 +2,6 @@ import { BarChart2, DollarSign, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "../api/client";
 
-// 🟢 SỬA: Component biểu đồ (Phiên bản "chỉnh chu" hơn)
 const SimpleBarChart = ({ data, loading }) => {
 	if (loading) {
 		return (

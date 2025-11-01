@@ -12,7 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import api from "../api/client";
 import ProductCard from "../components/ProductCard";
 
-// 🟢 TẠO: Component Bảng Thông số
+// Component Bảng Thông số
 const SpecsTable = ({ specs }) => {
 	if (!specs || specs.length === 0) {
 		return null;
@@ -34,7 +34,6 @@ const SpecsTable = ({ specs }) => {
 							<td className="py-3 px-4 font-medium text-gray-600 w-1/3">
 								{spec.key}
 							</td>
-							{/* Thêm class 'whitespace-pre-line' để xuống dòng */}
 							<td className="py-3 px-4 text-gray-800 whitespace-pre-line">
 								{spec.value}
 							</td>
@@ -120,7 +119,7 @@ export default function ProductDetail() {
 	const productImages = product.images || [product.image];
 
 	return (
-		// 🟢 SỬA: Nền trắng, không còn 'space-y-8'
+		// Nền trắng, không còn 'space-y-8'
 		<div className="bg-white">
 			<div className="max-w-6xl mx-auto p-6 mt-10">
 				{/* === KHỐI 1: BỐ CỤC 2 CỘT (GRID) === */}
@@ -253,7 +252,6 @@ export default function ProductDetail() {
 						</div>
 					</div>
 				</div>
-				{/* === KẾT THÚC KHỐI 1 === */}
 
 				{/* === KHỐI 2 - BẢNG THÔNG SỐ KỸ THUẬT === */}
 				<SpecsTable specs={product.specs} />

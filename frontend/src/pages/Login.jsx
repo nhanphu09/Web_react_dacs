@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
@@ -77,8 +77,7 @@ export default function Login() {
 						className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark disabled:opacity-50"
 						disabled={loading}>
 						{" "}
-						{/* 🟢 THÊM */}
-						{loading ? "Đang xử lý..." : "Login"} {/* 🟢 SỬA */}
+						{loading ? "Đang xử lý..." : "Login"}
 					</button>
 				</form>
 

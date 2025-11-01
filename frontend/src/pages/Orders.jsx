@@ -6,13 +6,13 @@ import {
 	Truck,
 	User,
 	XCircle,
-} from "lucide-react"; // 🟢 THÊM ICONS
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // 🟢 THÊM LINK, NAVIGATE
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/client";
-import { useAuth } from "../context/AuthProvider"; // 🟢 THÊM AUTH
+import { useAuth } from "../context/AuthProvider";
 
-// 🟢 TẠO: Component Sidebar
+// Component Sidebar
 const ProfileSidebar = () => {
 	const navigate = useNavigate();
 	const { logout } = useAuth();
@@ -54,7 +54,6 @@ export default function Orders() {
 	useEffect(() => {
 		const fetchOrders = async () => {
 			try {
-				// 🟢 SỬA LỖI 404: Xóa bớt một dấu gạch chéo
 				const res = await api.get("/orders/my-orders");
 				setOrders(res.data);
 			} catch (error) {
@@ -100,7 +99,7 @@ export default function Orders() {
 		}
 	};
 
-	// 🟢 SỬA: Hàm định dạng tiền tệ
+	// Hàm định dạng tiền tệ
 	const formatCurrency = (amount) => {
 		if (typeof amount !== "number") {
 			amount = 0;
@@ -112,7 +111,6 @@ export default function Orders() {
 	};
 
 	return (
-		// 🟢 SỬA: Thêm vào bố cục "My Account"
 		<div className="max-w-7xl mx-auto p-6 mt-10">
 			<h2 className="text-3xl font-bold text-gray-800 mb-8">
 				Tài khoản của tôi

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
@@ -75,8 +75,7 @@ export default function Register() {
 						className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50"
 						disabled={loading}>
 						{" "}
-						{/* 🟢 THÊM */}
-						{loading ? "Đang xử lý..." : "Đăng ký"} {/* 🟢 SỬA */}
+						{loading ? "Đang xử lý..." : "Đăng ký"}
 					</button>
 				</form>
 

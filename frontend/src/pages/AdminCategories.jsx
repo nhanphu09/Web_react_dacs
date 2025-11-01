@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../api/client";
 
-// 🟢 TẠO: Component Form chung
+// Component Form chung
 const CrudForm = ({ model, setModel, handleSubmit, resetForm }) => {
 	return (
 		<form
@@ -37,7 +37,7 @@ const CrudForm = ({ model, setModel, handleSubmit, resetForm }) => {
 	);
 };
 
-// 🟢 TẠO: Component Bảng chung
+// Component Bảng chung
 const CrudTable = ({ items, onEdit, onDelete }) => {
 	return (
 		<table className="w-full">

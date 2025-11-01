@@ -1,9 +1,9 @@
 // src/components/CategoryNav.jsx
 
 import { Laptop, Phone, Plug, Smartphone } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../api/client"; // Import API client của bạn
+import api from "../api/client";
 
 export default function CategoryNav() {
 	const [categories, setCategories] = useState([]);
@@ -23,7 +23,7 @@ export default function CategoryNav() {
 	// Helper để chọn biểu tượng (icon) dựa trên tên
 	const getIconForCategory = (categoryName) => {
 		if (categoryName.toLowerCase().includes("điện tử")) {
-			return <Smartphone size={16} />; // 🟢 SỬA: Dùng tên icon đúng
+			return <Smartphone size={16} />;
 		}
 		if (categoryName.toLowerCase().includes("laptop")) {
 			return <Laptop size={16} />;
@@ -43,7 +43,7 @@ export default function CategoryNav() {
 							key={cat._id}
 							to={`/products?category=${cat._id}`}
 							className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors duration-200">
-							{/* 🟢 SỬA: Bỏ comment để hiển thị icon */}
+							{/* Bỏ comment để hiển thị icon */}
 							<span>{getIconForCategory(cat.name)}</span>
 							<span>{cat.name}</span>
 						</Link>

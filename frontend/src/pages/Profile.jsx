@@ -1,10 +1,10 @@
-import { LogOut, Package, User } from "lucide-react"; // 🟢 THÊM: Icons
+import { LogOut, Package, User } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; // 🟢 THÊM: Link, useLocation, useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthProvider";
 
-// 🟢 TẠO: Component Sidebar cho trang Profile
+// Component Sidebar cho trang Profile
 const ProfileSidebar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -48,7 +48,7 @@ const ProfileSidebar = () => {
 	);
 };
 
-// 🟢 SỬA: Component Profile chính
+// Component Profile chính
 export default function Profile() {
 	const { user, updateProfile } = useAuth();
 	const [name, setName] = useState(user?.name || "");
@@ -62,7 +62,7 @@ export default function Profile() {
 	};
 
 	return (
-		// 🟢 SỬA: Bố cục 2 cột
+		// Bố cục 2 cột
 		<div className="max-w-7xl mx-auto p-6 mt-10">
 			{/* Tiêu đề trang */}
 			<h2 className="text-3xl font-bold text-gray-800 mb-8">
@@ -120,7 +120,7 @@ export default function Profile() {
 								/>
 							</div>
 
-							{/* 🟢 SỬA: Đổi màu nút sang 'bg-primary' */}
+							{/* Đổi màu nút sang 'bg-primary' */}
 							<button
 								onClick={handleSave}
 								className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-secondary transition duration-200">

@@ -1,15 +1,14 @@
-import { CheckCircle, CreditCard, Truck } from "lucide-react"; // 🟢 THÊM ICONS
+import { CheckCircle, CreditCard, Truck } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/client";
-import { useAuth } from "../context/AuthProvider"; // 🟢 1. IMPORT AUTH CONTEXT
+import { useAuth } from "../context/AuthProvider";
 
 export default function Checkout() {
-	const { user } = useAuth(); // 🟢 2. LẤY THÔNG TIN USER
+	const { user } = useAuth();
 	const navigate = useNavigate();
 
-	// 🟢 3. CẬP NHẬT STATE BAN ĐẦU
 	const [address, setAddress] = useState({
 		name: user?.name || "", // Tự động điền
 		email: user?.email || "", // Tự động điền
@@ -40,7 +39,7 @@ export default function Checkout() {
 			toast.warn("Giỏ hàng của bạn đang trống!");
 			return;
 		}
-		// 🟢 SỬA: Kiểm tra SĐT và Email
+		// Kiểm tra SĐT và Email
 		if (
 			!address.name ||
 			!address.line1 ||
@@ -89,7 +88,7 @@ export default function Checkout() {
 						Thông tin giao hàng
 					</h3>
 
-					{/* 🟢 SỬA: Form với các trường mới */}
+					{/* Form với các trường mới */}
 					<div className="space-y-4">
 						<div>
 							<label className="text-sm font-medium text-gray-700">
@@ -106,7 +105,7 @@ export default function Checkout() {
 							/>
 						</div>
 
-						{/* 🟢 THÊM: 2 TRƯỜNG MỚI (EMAIL VÀ SĐT) */}
+						{/* 2 TRƯỜNG MỚI (EMAIL VÀ SĐT) */}
 						<div className="grid grid-cols-2 gap-4">
 							<div>
 								<label className="text-sm font-medium text-gray-700">
@@ -184,7 +183,7 @@ export default function Checkout() {
 						</div>
 					</div>
 
-					{/* 🟢 SỬA: PHƯƠNG THỨC THANH TOÁN (DÙNG RADIO) */}
+					{/* PHƯƠNG THỨC THANH TOÁN (DÙNG RADIO) */}
 					<h3 className="text-xl font-semibold text-gray-700 mt-6 mb-3">
 						Phương thức thanh toán
 					</h3>
@@ -236,7 +235,7 @@ export default function Checkout() {
 					</div>
 				</div>
 
-				{/* CỘT PHẢI: TÓM TẮT (Giữ nguyên) */}
+				{/* CỘT PHẢI: TÓM TẮT */}
 				<div className="md:col-span-2 border border-gray-200 rounded-xl p-6 shadow-sm bg-gray-50 h-fit sticky top-24">
 					<h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-3">
 						Tóm tắt đơn hàng

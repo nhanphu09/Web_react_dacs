@@ -1,5 +1,3 @@
-// src/pages/AdminDashboard.jsx
-
 import {
 	BarChart2,
 	DollarSign,
@@ -12,7 +10,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/client";
 
-// 🟢 THÊM: Helper định dạng tiền
+// Helper định dạng tiền
 const formatCurrency = (amount) => {
 	return (amount || 0).toLocaleString("vi-VN", {
 		style: "currency",
@@ -26,14 +24,14 @@ export default function AdminDashboard() {
 		revenueMonth: 0,
 		bestSellers: [],
 	});
-	const [recentOrders, setRecentOrders] = useState([]); // 🟢 THÊM: State cho đơn hàng mới
-	const [loading, setLoading] = useState(true); // 🟢 THÊM: State loading
+	const [recentOrders, setRecentOrders] = useState([]);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setLoading(true);
-				// 🟢 SỬA: Tải cả hai API cùng lúc
+				// Tải cả hai API cùng lúc
 				const [statsRes, ordersRes] = await Promise.all([
 					api.get("/reports"),
 					api.get("/orders?limit=5&sort=createdAt_desc"), // Tải 5 đơn hàng mới nhất
@@ -87,13 +85,12 @@ export default function AdminDashboard() {
 				</div>
 			</div>
 
-			{/* Lối tắt quản lý (Giữ nguyên) */}
+			{/* Lối tắt quản lý */}
 			<div className="mt-10">
 				<h3 className="text-2xl font-semibold mb-4 text-gray-800">
 					Lối tắt quản lý
 				</h3>
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-					{/* ... (Các thẻ Link giữ nguyên) ... */}
 					<Link
 						to="/admin/products"
 						className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center transform hover:-translate-y-1">
@@ -121,7 +118,7 @@ export default function AdminDashboard() {
 				</div>
 			</div>
 
-			{/* 🟢 SỬA: Bố cục 2 cột cho Bảng */}
+			{/* Bố cục 2 cột cho Bảng */}
 			<div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
 				{/* Cột 1: Sản phẩm bán chạy */}
 				<div>
@@ -170,7 +167,7 @@ export default function AdminDashboard() {
 					</div>
 				</div>
 
-				{/* 🟢 THÊM: Cột 2 - Đơn hàng mới nhất */}
+				{/* Cột 2 - Đơn hàng mới nhất */}
 				<div>
 					<h3 className="text-2xl font-semibold mb-4 text-gray-800">
 						🧾 Đơn hàng mới nhất

@@ -1,5 +1,3 @@
-// src/components/FilterSidebar.jsx
-
 import { X } from "lucide-react";
 
 export default function FilterSidebar({
@@ -11,14 +9,12 @@ export default function FilterSidebar({
 	brand,
 	minPrice,
 	maxPrice,
-	// ❌ ĐÃ XÓA 'sort'
 	// Props (Setters)
 	setQ,
 	setCategory,
 	setBrand,
 	setMinPrice,
 	setMaxPrice,
-	// ❌ ĐÃ XÓA 'setSort'
 	handleReset,
 	handleSearch,
 }) {
@@ -47,8 +43,6 @@ export default function FilterSidebar({
 						className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
-
-				{/* 2. ❌ ĐÃ XÓA PHẦN SẮP XẾP */}
 
 				{/* 3. Khoảng giá */}
 				<div>

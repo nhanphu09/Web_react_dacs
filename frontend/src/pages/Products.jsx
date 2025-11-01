@@ -3,7 +3,7 @@ import api from "../api/client";
 import FilterSidebar from "../components/FilterSidebar";
 import ProductCard from "../components/ProductCard";
 
-// Skeleton Card (Giữ nguyên)
+// Skeleton Card
 const SkeletonCard = () => (
 	<div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 animate-pulse">
 		<div className="w-full h-48 bg-gray-200 rounded-lg mb-3"></div>
@@ -20,7 +20,7 @@ export default function Products() {
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [totalProducts, setTotalProducts] = useState(0); // 🟢 THÊM STATE NÀY
+	const [totalProducts, setTotalProducts] = useState(0);
 	const [q, setQ] = useState("");
 	const [category, setCategory] = useState("");
 	const [brand, setBrand] = useState("");
@@ -43,7 +43,7 @@ export default function Products() {
 			const res = await api.get("/products", { params });
 			setProducts(res.data.products);
 			setTotalPages(res.data.totalPages);
-			setTotalProducts(res.data.count); // 🟢 CẬP NHẬT STATE TỔNG SP
+			setTotalProducts(res.data.count);
 		} catch (err) {
 			console.error(err);
 		} finally {
@@ -51,7 +51,6 @@ export default function Products() {
 		}
 	};
 
-	// ... (Các hàm fetchFilters, handleSearch, handleReset giữ nguyên) ...
 	const fetchFilters = async () => {
 		try {
 			const [catRes, brandRes] = await Promise.all([
@@ -128,7 +127,7 @@ export default function Products() {
 
 				{/* CỘT 2: LƯỚI SẢN PHẨM */}
 				<div className="md:col-span-3">
-					{/* 🟢 THÊM: HEADER CHO CỘT SẢN PHẨM (ĐẾM + SẮP XẾP) */}
+					{/* HEADER CHO CỘT SẢN PHẨM (ĐẾM + SẮP XẾP) */}
 					<div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm mb-6">
 						<p className="text-gray-700 font-medium text-sm mb-2 md:mb-0">
 							{!loading && (

@@ -1,4 +1,4 @@
-import { ShoppingBag, ShoppingCart, Trash2 } from "lucide-react"; // 🟢 THÊM: ShoppingCart ICON
+import { ShoppingBag, ShoppingCart, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import QuantityInput from "../components/QuantityInput";
@@ -13,7 +13,6 @@ export default function Cart() {
 		setCart(stored);
 	}, []);
 
-	// ... (Tất cả các hàm: updateQty, removeItem, subtotal, shipping, total, formatCurrency... giữ nguyên)
 	const updateQty = (index, qty) => {
 		const newCart = [...cart];
 		newCart[index].qty = Math.max(1, Number(qty));
@@ -47,7 +46,7 @@ export default function Cart() {
 				<ShoppingBag className="text-primary" /> Giỏ hàng của bạn
 			</h2>
 
-			{/* 🟢 SỬA: PHẦN HIỂN THỊ KHI GIỎ HÀNG TRỐNG */}
+			{/* PHẦN HIỂN THỊ KHI GIỎ HÀNG TRỐNG */}
 			{cart.length === 0 ? (
 				<div className="text-center py-20 bg-white rounded-2xl shadow-lg text-gray-500">
 					{/* Thêm icon lớn */}
@@ -65,7 +64,7 @@ export default function Cart() {
 					</button>
 				</div>
 			) : (
-				// PHẦN HIỂN THỊ KHI CÓ SẢN PHẨM (Giữ nguyên)
+				// PHẦN HIỂN THỊ KHI CÓ SẢN PHẨM
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					{/* CỘT BÊN TRÁI: DANH SÁCH SẢN PHẨM */}
 					<div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">

@@ -55,8 +55,17 @@ export const getProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
 	try {
-		const { title, description, price, category, stock, brand, image, specs } =
-			req.body;
+		const {
+			title,
+			description,
+			price,
+			category,
+			stock,
+			brand,
+			image,
+			specs,
+			promotions,
+		} = req.body;
 		const product = new Product({
 			title,
 			description,
@@ -66,6 +75,7 @@ export const createProduct = async (req, res) => {
 			brand,
 			image,
 			specs,
+			promotions,
 		});
 		await product.save();
 		res.status(201).json(product);
@@ -76,8 +86,17 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
 	try {
-		const { title, description, price, category, stock, brand, image, specs } =
-			req.body;
+		const {
+			title,
+			description,
+			price,
+			category,
+			stock,
+			brand,
+			image,
+			specs,
+			promotions,
+		} = req.body;
 
 		const product = await Product.findById(req.params.id);
 
@@ -90,6 +109,7 @@ export const updateProduct = async (req, res) => {
 			product.brand = brand || product.brand;
 			product.image = image || product.image;
 			product.specs = specs || product.specs;
+			product.promotions = promotions || product.promotions;
 
 			const updatedProduct = await product.save();
 			res.json(updatedProduct);

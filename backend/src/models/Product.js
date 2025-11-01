@@ -39,6 +39,7 @@ const productSchema = new mongoose.Schema(
 		sold: { type: Number, default: 0 },
 		promotions: [String],
 		specs: [specSchema],
+		prpromotions: [String],
 	},
 	{ timestamps: true }
 );
