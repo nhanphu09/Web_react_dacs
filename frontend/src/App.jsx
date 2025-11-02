@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout.jsx";
-import CategoryNav from "./components/CategoryNav.jsx";
 import Footer from "./components/Footer.jsx";
 import Navbar from "./components/Navbar";
+import PromoBar from "./components/PromoBar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminCategories from "./pages/AdminCategories";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -25,7 +25,7 @@ export default function App() {
 	return (
 		<>
 			<Navbar />
-			<CategoryNav />
+			<PromoBar />
 			<Routes>
 				{/* Public routes */}
 				<Route path="/" element={<Home />} />
