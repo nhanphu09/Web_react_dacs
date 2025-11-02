@@ -1,9 +1,30 @@
-// src/components/CategoryNav.jsx
-
-import { Laptop, Phone, Plug, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FaTshirt } from "react-icons/fa";
+import { GiPerfumeBottle } from "react-icons/gi";
+import { GrMoney } from "react-icons/gr";
+import { IoSparkles } from "react-icons/io5";
+import {
+	MdOutlineComputer,
+	MdOutlineFastfood,
+	MdOutlineLocalDrink,
+	MdPhoneIphone,
+} from "react-icons/md";
 import { Link } from "react-router-dom";
 import api from "../api/client";
+
+const getIconForCategory = (categoryName) => {
+	const lowerName = categoryName.toLowerCase();
+
+	if (lowerName.includes("máy tính")) return <MdOutlineComputer size={16} />;
+	if (lowerName.includes("điện thoại")) return <MdPhoneIphone size={16} />;
+	if (lowerName.includes("quần áo")) return <FaTshirt size={16} />;
+	if (lowerName.includes("chăm sóc")) return <GiPerfumeBottle size={16} />;
+	if (lowerName.includes("thực phẩm")) return <MdOutlineFastfood size={16} />;
+	if (lowerName.includes("tài chính")) return <GrMoney size={16} />;
+	if (lowerName.includes("đồ uống")) return <MdOutlineLocalDrink size={16} />;
+
+	return <IoSparkles size={16} />; // Icon mặc định
+};
 
 export default function CategoryNav() {
 	const [categories, setCategories] = useState([]);
@@ -19,20 +40,6 @@ export default function CategoryNav() {
 		};
 		fetchCategories();
 	}, []);
-
-	// Helper để chọn biểu tượng (icon) dựa trên tên
-	const getIconForCategory = (categoryName) => {
-		if (categoryName.toLowerCase().includes("điện tử")) {
-			return <Smartphone size={16} />;
-		}
-		if (categoryName.toLowerCase().includes("laptop")) {
-			return <Laptop size={16} />;
-		}
-		if (categoryName.toLowerCase().includes("phụ kiện")) {
-			return <Plug size={16} />;
-		}
-		return <Phone size={16} />; // Icon mặc định
-	};
 
 	return (
 		<nav className="bg-white shadow-md sticky top-0 z-40">

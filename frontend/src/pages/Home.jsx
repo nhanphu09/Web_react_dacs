@@ -5,6 +5,12 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import { FaMobileAlt, FaTshirt } from "react-icons/fa"; // Categories
+import { GiPerfumeBottle } from "react-icons/gi"; // Categories
+import { IoSparkles } from "react-icons/io5"; // Default
+import { MdOutlineComputer, MdOutlineFastfood } from "react-icons/md";
+import { SiApple, SiCocacola, SiOppo, SiSamsung, SiSony } from "react-icons/si"; // Brands
+
 import {
 	Headset,
 	LayoutGrid,
@@ -27,6 +33,30 @@ const SkeletonCard = () => (
 		<div className="h-10 bg-gray-200 rounded-md mt-3"></div>
 	</div>
 );
+
+const getIcon = (name, type = "category") => {
+	const lowerName = name.toLowerCase();
+
+	// Dành cho Thương hiệu
+	if (type === "brand") {
+		if (lowerName.includes("apple")) return <SiApple size={32} />;
+		if (lowerName.includes("samsung")) return <SiSamsung size={32} />;
+		if (lowerName.includes("oppo")) return <SiOppo size={32} />;
+		if (lowerName.includes("sony")) return <SiSony size={32} />;
+		if (lowerName.includes("coca-cola")) return <SiCocacola size={32} />;
+		if (lowerName.includes("nike")) return <nike-icon size={32} />;
+		return <Tag size={32} />; // Default brand icon
+	}
+
+	// Dành cho Danh mục
+	if (lowerName.includes("máy tính")) return <MdOutlineComputer size={32} />;
+	if (lowerName.includes("điện thoại")) return <FaMobileAlt size={32} />;
+	if (lowerName.includes("quần áo")) return <FaTshirt size={32} />;
+	if (lowerName.includes("chăm sóc")) return <GiPerfumeBottle size={32} />;
+	if (lowerName.includes("thực phẩm")) return <MdOutlineFastfood size={32} />;
+
+	return <IoSparkles size={32} />; // Default category icon
+};
 
 export default function Home() {
 	// State
@@ -106,10 +136,9 @@ export default function Home() {
 					<Link
 						to={`/products?${type}=${item._id}`}
 						className="group flex flex-col items-center justify-center p-4 h-28 bg-white rounded-xl border border-gray-200 shadow-sm hover:bg-primary hover:shadow-lg hover:border-transparent transition-all duration-300 transform hover:-translate-y-1">
-						<Tag
-							size={32}
-							className="text-gray-500 group-hover:text-white mb-2 transition-colors"
-						/>
+						<div className="text-gray-500 group-hover:text-white mb-2 transition-colors">
+							{getIcon(item.name, type)}
+						</div>
 						<span className="font-semibold text-gray-800 group-hover:text-white text-center text-sm">
 							{item.name}
 						</span>
