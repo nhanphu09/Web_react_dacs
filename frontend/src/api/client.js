@@ -23,10 +23,13 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		if (error.response?.status === 401) {
+		const isLoginPath = window.location.pathname === "/login";
+
+		if (error.response?.status === 401 && !isLoginPath) {
 			clearStoredUser();
-			window.location.href = "/auth/login";
+			window.location.href = "/login";
 		}
+
 		return Promise.reject(error);
 	}
 );

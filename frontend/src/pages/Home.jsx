@@ -6,10 +6,17 @@ import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { FaMobileAlt, FaTshirt } from "react-icons/fa"; // Categories
-import { GiPerfumeBottle } from "react-icons/gi"; // Categories
+import { GiPerfumeBottle, GiSonicShoes } from "react-icons/gi"; // Categories
 import { IoSparkles } from "react-icons/io5"; // Default
 import { MdOutlineComputer, MdOutlineFastfood } from "react-icons/md";
-import { SiApple, SiCocacola, SiOppo, SiSamsung, SiSony } from "react-icons/si"; // Brands
+import {
+	SiApple,
+	SiCocacola,
+	SiNike,
+	SiOppo,
+	SiSamsung,
+	SiSony,
+} from "react-icons/si"; // Brands
 
 import {
 	Headset,
@@ -44,7 +51,7 @@ const getIcon = (name, type = "category") => {
 		if (lowerName.includes("oppo")) return <SiOppo size={32} />;
 		if (lowerName.includes("sony")) return <SiSony size={32} />;
 		if (lowerName.includes("coca-cola")) return <SiCocacola size={32} />;
-		if (lowerName.includes("nike")) return <nike-icon size={32} />;
+		if (lowerName.includes("nike")) return <SiNike size={32} />;
 		return <Tag size={32} />; // Default brand icon
 	}
 
@@ -54,6 +61,7 @@ const getIcon = (name, type = "category") => {
 	if (lowerName.includes("quần áo")) return <FaTshirt size={32} />;
 	if (lowerName.includes("chăm sóc")) return <GiPerfumeBottle size={32} />;
 	if (lowerName.includes("thực phẩm")) return <MdOutlineFastfood size={32} />;
+	if (lowerName.includes("giày dép")) return <GiSonicShoes size={32} />;
 
 	return <IoSparkles size={32} />; // Default category icon
 };

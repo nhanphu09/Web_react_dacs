@@ -1,32 +1,52 @@
 import { Menu, Search, ShoppingCart, User } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
+import MegaMenu from "./MegaMenu.jsx"; // Phải import
 
 export default function Navbar() {
 	const { user, logout } = useAuth();
 	const navigate = useNavigate();
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const handleLogout = () => {
 		logout();
 		navigate("/");
 	};
 
+	let leaveTimer;
+	const handleMouseLeave = () => {
+		leaveTimer = setTimeout(() => {
+			setIsMenuOpen(false);
+		}, 200);
+	};
+
+	const handleMouseEnter = () => {
+		clearTimeout(leaveTimer);
+		setIsMenuOpen(true);
+	};
+
 	return (
-		<nav className="bg-primary text-white shadow-md">
+		<nav
+			className="relative bg-primary text-white shadow-md z-50"
+			onMouseLeave={handleMouseLeave}>
 			<div className="max-w-7xl mx-auto px-4">
 				<div className="flex justify-between items-center h-20 gap-4">
-					{/* 1. Logo */}
+					{/* Logo */}
 					<Link to="/" className="text-2xl font-bold tracking-wide">
 						PKA<span className="text-secondary">Shop</span>
 					</Link>
 
 					{/* 2. Nút Danh mục */}
-					<button className="flex-shrink-0 bg-black bg-opacity-10 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-opacity-20 transition">
+					<button
+						className="flex-shrink-0 bg-black bg-opacity-10 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-opacity-20 transition"
+						// 4. Hiện menu khi di chuột VÀO NÚT
+						onMouseEnter={handleMouseEnter}>
 						<Menu size={20} />
 						<span className="font-medium">Danh mục</span>
 					</button>
 
-					{/* 3. Thanh Tìm kiếm (Chiếm phần lớn) */}
+					{/* Thanh Tìm kiếm */}
 					<form className="flex-1 max-w-xl">
 						<div className="relative">
 							<input
@@ -42,7 +62,7 @@ export default function Navbar() {
 						</div>
 					</form>
 
-					{/* 4. Đăng nhập / Tài khoản */}
+					{/* Đăng nhập / Tài khoản */}
 					{!user ? (
 						<Link
 							to="/login"
@@ -66,7 +86,7 @@ export default function Navbar() {
 						</div>
 					)}
 
-					{/* 5. Giỏ hàng */}
+					{/* Giỏ hàng */}
 					<Link
 						to="/cart"
 						className="flex-shrink-0 bg-black bg-opacity-10 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-opacity-20 transition">
@@ -75,6 +95,15 @@ export default function Navbar() {
 					</Link>
 				</div>
 			</div>
+
+			{/* 5. Mega Menu nằm ở đây, 'absolute' so với <nav> */}
+			{isMenuOpen && (
+				<div
+					onMouseEnter={handleMouseEnter} // Giữ menu mở khi di chuột vào
+				>
+					<MegaMenu />
+				</div>
+			)}
 		</nav>
 	);
 }
