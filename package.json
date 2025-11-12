@@ -1,11 +1,11 @@
 {
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  },
-
-  "scripts": {
-    "dev": "concurrently \"npm run server --prefix backend\" \"npm run dev --prefix frontend\"",
-    "server": "npm start --prefix backend",
-    "frontend": "npm run dev --prefix frontend"
-  }
+	"name": "wep_react_dacs_main",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+	},
+	"devDependencies": {
+		"concurrently": "^8.2.1"
+	}
 }
