@@ -36,7 +36,6 @@ app.use(
 		credentials: true,
 	})
 );
-// 🟢 KẾT THÚC SỬA
 
 app.use(express.json());
 
