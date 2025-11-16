@@ -1,8 +1,8 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import connectDB from "./config/db.js"; // 🟢 SỬA: Đảm bảo đường dẫn đúng
-import { errorHandler } from "./middleware/errorHandler.js"; // 🟢 SỬA: Đảm bảo đường dẫn đúng
+import connectDB from "./config/db.js"; // (Đường dẫn của bạn)
+import { errorHandler } from "./middleware/errorHandler.js"; // (Đường dẫn của bạn)
 import authRoutes from "./routes/authRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -10,27 +10,39 @@ import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import { createAdminIfMissing } from "./utils/seedAdmin.js"; // 🟢 SỬA: Đảm bảo đường dẫn đúng
+import { createAdminIfMissing } from "./utils/seedAdmin.js"; // (Đường dẫn của bạn)
 
 dotenv.config();
 const app = express();
 
-// 🟢 BƯỚC QUAN TRỌNG: Cấu hình CORS
-// Phải nằm TRƯỚC tất cả các app.use("/api/...")
+// 🟢 BẮT ĐẦU SỬA: Cấu hình CORS động
+const allowedOrigins = [
+	process.env.FRONTEND_URL, // Đây sẽ là URL Vercel (sẽ thêm ở bước deploy)
+	"http://localhost:5173", // URL phát triển ở máy
+];
+
 app.use(
 	cors({
-		origin: "http://localhost:5173", // Cho phép frontend 5173 gọi
+		origin: function (origin, callback) {
+			// Cho phép nếu origin nằm trong 'allowedOrigins' (hoặc nếu là 'undefined' - ví dụ: Postman)
+			if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+				callback(null, true);
+			} else {
+				callback(new Error("Bị chặn bởi CORS"));
+			}
+		},
 		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
 	})
 );
+// 🟢 KẾT THÚC SỬA
 
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("✅ Backend is running!"));
 
-// Routes
+// Routes (Giữ nguyên)
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -39,11 +51,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/reports", reportRoutes);
 
-// Xử lý lỗi
+// Xử lý lỗi (Giữ nguyên)
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 app.use(errorHandler);
 
-// Khởi động server
+// Khởi động server (Giữ nguyên)
 const PORT = process.env.PORT || 5000;
 (async () => {
 	try {
