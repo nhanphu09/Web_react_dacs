@@ -1,8 +1,8 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import connectDB from "./config/db.js"; // (Đường dẫn của bạn)
-import { errorHandler } from "./middleware/errorHandler.js"; // (Đường dẫn của bạn)
+import connectDB from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -10,14 +10,14 @@ import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import { createAdminIfMissing } from "./utils/seedAdmin.js"; // (Đường dẫn của bạn)
+import { createAdminIfMissing } from "./utils/seedAdmin.js";
 
 dotenv.config();
 const app = express();
 
 // 🟢 BẮT ĐẦU SỬA: Cấu hình CORS động
 const allowedOrigins = [
-	process.env.FRONTEND_URL, // Đây sẽ là URL Vercel (sẽ thêm ở bước deploy)
+	process.env.FRONTEND_URL, // Đây sẽ là URL Vercel (sẽ thêm ở bước 3)
 	"http://localhost:5173", // URL phát triển ở máy
 ];
 
