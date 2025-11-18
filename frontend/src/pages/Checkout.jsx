@@ -76,11 +76,14 @@ export default function Checkout() {
 	};
 
 	return (
-		<div className="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-2xl">
-			<h2 className="text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
+		// --- THAY ĐỔI: Giảm lề và padding trên mobile ---
+		<div className="max-w-6xl mx-auto mt-4 md:mt-10 p-4 md:p-6 bg-white shadow-xl rounded-2xl">
+			{/* --- THAY ĐỔI: Giảm cỡ chữ trên mobile --- */}
+			<h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
 				<CreditCard className="text-primary" /> Thanh toán
 			</h2>
 
+			{/* Bố cục này đã responsive (md:grid-cols-5), rất tốt! */}
 			<div className="grid grid-cols-1 md:grid-cols-5 gap-8">
 				{/* CỘT TRÁI: THÔNG TIN (chiếm 3/5) */}
 				<div className="md:col-span-3">
@@ -105,8 +108,8 @@ export default function Checkout() {
 							/>
 						</div>
 
-						{/* 2 TRƯỜNG MỚI (EMAIL VÀ SĐT) */}
-						<div className="grid grid-cols-2 gap-4">
+						{/* --- THAY ĐỔI: grid-cols-1 trên mobile, md:grid-cols-2 trên desktop --- */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
 								<label className="text-sm font-medium text-gray-700">
 									Email (Để nhận xác nhận)
@@ -151,7 +154,8 @@ export default function Checkout() {
 								className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
 							/>
 						</div>
-						<div className="grid grid-cols-2 gap-4">
+						{/* --- THAY ĐỔI: grid-cols-1 trên mobile, md:grid-cols-2 trên desktop --- */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
 								<label className="text-sm font-medium text-gray-700">
 									Thành phố/Tỉnh
@@ -183,7 +187,7 @@ export default function Checkout() {
 						</div>
 					</div>
 
-					{/* PHƯƠNG THỨC THANH TOÁN (DÙNG RADIO) */}
+					{/* PHƯƠNG THỨC THANH TOÁN (Giữ nguyên) */}
 					<h3 className="text-xl font-semibold text-gray-700 mt-6 mb-3">
 						Phương thức thanh toán
 					</h3>
@@ -236,7 +240,8 @@ export default function Checkout() {
 				</div>
 
 				{/* CỘT PHẢI: TÓM TẮT */}
-				<div className="md:col-span-2 border border-gray-200 rounded-xl p-6 shadow-sm bg-gray-50 h-fit sticky top-24">
+				{/* --- THAY ĐỔI: Thêm 'md:sticky' (chỉ dính trên desktop) --- */}
+				<div className="md:col-span-2 border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm bg-gray-50 h-fit md:sticky top-24">
 					<h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-3">
 						Tóm tắt đơn hàng
 					</h3>

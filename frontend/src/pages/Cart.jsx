@@ -41,20 +41,22 @@ export default function Cart() {
 	};
 
 	return (
-		<div className="max-w-7xl mx-auto p-6 mt-10">
-			<h2 className="text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
+		// --- THAY ĐỔI: Giảm padding và lề trên mobile ---
+		<div className="max-w-7xl mx-auto p-4 md:p-6 mt-4 md:mt-10">
+			{/* --- THAY ĐỔI: Giảm cỡ chữ trên mobile --- */}
+			<h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
 				<ShoppingBag className="text-primary" /> Giỏ hàng của bạn
 			</h2>
 
 			{/* PHẦN HIỂN THỊ KHI GIỎ HÀNG TRỐNG */}
 			{cart.length === 0 ? (
-				<div className="text-center py-20 bg-white rounded-2xl shadow-lg text-gray-500">
-					{/* Thêm icon lớn */}
+				// --- THAY ĐỔI: Giảm padding và cỡ chữ trên mobile ---
+				<div className="text-center py-12 md:py-20 bg-white rounded-2xl shadow-lg text-gray-500">
 					<ShoppingCart size={64} className="mx-auto text-gray-300" />
-					<h3 className="text-2xl font-semibold text-gray-800 mt-4">
+					<h3 className="text-xl md:text-2xl font-semibold text-gray-800 mt-4">
 						Giỏ hàng của bạn đang trống
 					</h3>
-					<p className="text-lg mb-6 mt-2">
+					<p className="text-base md:text-lg mb-6 mt-2">
 						Trông có vẻ như bạn chưa thêm sản phẩm nào vào giỏ.
 					</p>
 					<button
@@ -64,17 +66,20 @@ export default function Cart() {
 					</button>
 				</div>
 			) : (
-				// PHẦN HIỂN THỊ KHI CÓ SẢN PHẨM
+				// Bố cục này đã responsive (lg:grid-cols-3), rất tốt!
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 					{/* CỘT BÊN TRÁI: DANH SÁCH SẢN PHẨM */}
-					<div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+					{/* --- THAY ĐỔI: Giảm padding trên mobile --- */}
+					<div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-2xl shadow-lg">
 						<div className="space-y-5">
 							{cart.map((item, index) => (
 								<div
 									key={index}
-									className="flex flex-col md:flex-row items-center justify-between border-b border-gray-200 pb-5">
+									// --- THAY ĐỔI: 'items-start' trên mobile, 'items-center' trên desktop ---
+									className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-gray-200 pb-5">
 									{/* Thông tin sản phẩm */}
-									<div className="flex items-center gap-5 flex-1 mb-4 md:mb-0">
+									{/* --- THAY ĐỔI: Giảm 'gap' trên mobile --- */}
+									<div className="flex items-center gap-3 md:gap-5 flex-1 mb-4 md:mb-0 w-full">
 										<div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
 											<img
 												src={item.image}
@@ -83,7 +88,8 @@ export default function Cart() {
 											/>
 										</div>
 										<div>
-											<p className="font-semibold text-lg text-gray-800">
+											{/* --- THAY ĐỔI: Giảm cỡ chữ trên mobile --- */}
+											<p className="font-semibold text-base md:text-lg text-gray-800">
 												{item.title}
 											</p>
 											<p className="text-gray-600 text-sm">
@@ -96,7 +102,8 @@ export default function Cart() {
 									</div>
 
 									{/* Số lượng và nút xóa */}
-									<div className="flex items-center gap-4">
+									{/* --- THAY ĐỔI: Căn phải (self-end) trên mobile --- */}
+									<div className="flex items-center gap-4 self-end md:self-auto">
 										<QuantityInput
 											value={item.qty}
 											onDecrease={() => updateQty(index, item.qty - 1)}
@@ -116,12 +123,13 @@ export default function Cart() {
 
 					{/* CỘT BÊN PHẢI: TÓM TẮT ĐƠN HÀNG */}
 					<div className="lg:col-span-1 h-fit lg:sticky lg:top-24">
-						<div className="bg-white p-6 rounded-2xl shadow-lg">
+						{/* --- THAY ĐỔI: Giảm padding trên mobile --- */}
+						<div className="bg-white p-4 md:p-6 rounded-2xl shadow-lg">
 							<h3 className="text-xl font-bold mb-4 border-b pb-3">
 								Tóm tắt đơn hàng
 							</h3>
 
-							{/* Ô MÃ KHUYẾN MÃI */}
+							{/* Ô MÃ KHUYẾN MÃI (Giữ nguyên) */}
 							<div className="mb-4">
 								<label className="block text-sm font-medium text-gray-700 mb-1">
 									Mã khuyến mãi
@@ -140,7 +148,7 @@ export default function Cart() {
 								</div>
 							</div>
 
-							{/* Phần tính tiền */}
+							{/* Phần tính tiền (Giữ nguyên) */}
 							<div className="space-y-3 text-gray-700 border-t pt-4">
 								<div className="flex justify-between">
 									<span>Tạm tính:</span>
@@ -160,7 +168,7 @@ export default function Cart() {
 								</div>
 							</div>
 
-							{/* Nút bấm */}
+							{/* Nút bấm (Giữ nguyên) */}
 							<div className="mt-6 space-y-3">
 								<button
 									onClick={() => navigate("/checkout")}

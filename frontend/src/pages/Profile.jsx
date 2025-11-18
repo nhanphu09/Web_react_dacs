@@ -21,6 +21,7 @@ const ProfileSidebar = () => {
 	];
 
 	return (
+		// 'w-full' cho mobile, 'md:w-64' cho desktop. Rất tốt!
 		<aside className="w-full md:w-64 bg-white p-6 rounded-2xl shadow-lg">
 			<nav className="flex flex-col space-y-3">
 				{navLinks.map((link) => (
@@ -63,12 +64,15 @@ export default function Profile() {
 
 	return (
 		// Bố cục 2 cột
-		<div className="max-w-7xl mx-auto p-6 mt-10">
+		// --- THAY ĐỔI: Giảm padding (p-4) và lề (mt-4) trên mobile ---
+		<div className="max-w-7xl mx-auto p-4 md:p-6 mt-4 md:mt-10">
 			{/* Tiêu đề trang */}
-			<h2 className="text-3xl font-bold text-gray-800 mb-8">
+			{/* --- THAY ĐỔI: Giảm cỡ chữ (text-2xl) trên mobile --- */}
+			<h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8">
 				Tài khoản của tôi
 			</h2>
 
+			{/* Đây là class responsive quan trọng, và bạn đã làm đúng */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 				{/* CỘT 1: SIDEBAR */}
 				<div className="md:col-span-1">
@@ -77,8 +81,9 @@ export default function Profile() {
 
 				{/* CỘT 2: NỘI DUNG (FORM) */}
 				<div className="md:col-span-3">
-					<div className="bg-white shadow-lg rounded-2xl p-8">
-						<h3 className="text-2xl font-bold mb-6 text-gray-800">
+					{/* --- THAY ĐỔI: Giảm padding (p-6) trên mobile --- */}
+					<div className="bg-white shadow-lg rounded-2xl p-6 md:p-8">
+						<h3 className="text-xl md:text-2xl font-bold mb-6 text-gray-800">
 							Thông tin cá nhân
 						</h3>
 

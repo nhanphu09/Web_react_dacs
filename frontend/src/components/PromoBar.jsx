@@ -10,7 +10,8 @@ const promoItems = [
 
 export default function PromoBar() {
 	return (
-		<div className="bg-white border-b border-gray-200">
+		// THÊM 'hidden md:block' VÀO ĐÂY
+		<div className="hidden md:block bg-white border-b border-gray-200">
 			<div className="max-w-7xl mx-auto px-4 h-12 flex justify-between items-center">
 				{/* Trái: Các khuyến mãi */}
 				<div className="flex items-center gap-4">
