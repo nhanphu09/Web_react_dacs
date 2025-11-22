@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout.jsx";
+import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer.jsx";
 import Navbar from "./components/Navbar";
 import PromoBar from "./components/PromoBar.jsx";
@@ -103,6 +104,7 @@ export default function App() {
 					<Route path="categories" element={<AdminCategories />} />
 				</Route>
 			</Routes>
+			<Chatbot />
 			<Footer />
 		</>
 	);
