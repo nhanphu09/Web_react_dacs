@@ -1,6 +1,6 @@
-import { CheckCircle, CreditCard, MapPin, Phone, Truck, User } from "lucide-react";
+import { CheckCircle, CreditCard, MapPin, Phone, Truck, User, QrCode } from "lucide-react"; // Thêm icon QrCode
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Thêm useLocation
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/client";
 import { useAuth } from "../context/AuthProvider";
@@ -8,9 +8,9 @@ import { useAuth } from "../context/AuthProvider";
 export default function Checkout() {
 	const { user } = useAuth();
 	const navigate = useNavigate();
-	const location = useLocation(); // Hook để nhận dữ liệu từ trang Cart
+	const location = useLocation();
 
-	// Lấy thông tin giảm giá từ state (nếu có), mặc định là 0
+	// Lấy thông tin giảm giá từ state (nếu có)
 	const { discountPercent = 0, discountAmount = 0 } = location.state || {};
 
 	const [cart, setCart] = useState([]);
@@ -23,10 +23,9 @@ export default function Checkout() {
 		phone: "",
 		line1: "",
 		city: "",
-		paymentMethod: "COD"
+		paymentMethod: "COD" // Mặc định là COD
 	});
 
-	// Load Cart và điền thông tin User
 	useEffect(() => {
 		const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
 		if (storedCart.length === 0) {
@@ -48,11 +47,8 @@ export default function Checkout() {
 	// --- TÍNH TOÁN TIỀN ---
 	const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 	const shipping = subtotal > 1000000 ? 0 : 30000;
-
-	// Tổng tiền cuối cùng = Tạm tính - Giảm giá + Ship
 	const total = subtotal - discountAmount + shipping;
 
-	// Helper format tiền
 	const formatCurrency = (amount) => {
 		return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 	};
@@ -67,8 +63,8 @@ export default function Checkout() {
 					product: item.product,
 					quantity: item.qty
 				})),
-				totalPrice: total, // Gửi tổng tiền đã trừ giảm giá
-				paymentMethod: formData.paymentMethod,
+				totalPrice: total,
+				paymentMethod: formData.paymentMethod, // COD hoặc BANKING
 				shippingAddress: {
 					name: formData.name,
 					email: formData.email,
@@ -77,14 +73,23 @@ export default function Checkout() {
 					city: formData.city,
 					postal: "10000"
 				}
-				// Nếu backend hỗ trợ lưu thông tin coupon, bạn có thể thêm trường discount vào đây
 			};
 
 			const { data } = await api.post("/orders", orderPayload);
 
-			toast.success(`Đặt hàng thành công! Mã đơn: #${data._id.slice(-6)}`);
-			localStorage.removeItem("cart"); // Xóa giỏ hàng
-			navigate("/orders"); // Chuyển đến trang lịch sử
+			// Xóa giỏ hàng sau khi tạo đơn thành công
+			localStorage.removeItem("cart");
+
+			// --- LOGIC ĐIỀU HƯỚNG MỚI ---
+			if (formData.paymentMethod === "BANKING") {
+				// Nếu chọn Chuyển khoản -> Qua trang quét QR
+				navigate(`/payment/${data._id}`);
+			} else {
+				// Nếu chọn COD -> Về trang lịch sử
+				toast.success(`Đặt hàng thành công! Mã đơn: #${data._id.slice(-6)}`);
+				navigate("/orders");
+			}
+
 		} catch (err) {
 			console.error(err);
 			toast.error(err.response?.data?.message || "Đặt hàng thất bại.");
@@ -171,12 +176,14 @@ export default function Checkout() {
 						</div>
 					</div>
 
+					{/* --- PHƯƠNG THỨC THANH TOÁN (CẬP NHẬT) --- */}
 					<div className="bg-white p-6 rounded-xl shadow-sm border">
 						<h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
 							<CreditCard size={20} className="text-primary" /> Phương thức thanh toán
 						</h3>
 						<div className="space-y-3">
-							<label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+							{/* Option 1: COD */}
+							<label className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition ${formData.paymentMethod === "COD" ? "border-primary bg-blue-50" : "hover:bg-gray-50"}`}>
 								<input
 									type="radio"
 									name="payment"
@@ -186,6 +193,25 @@ export default function Checkout() {
 									className="w-5 h-5 text-primary focus:ring-primary"
 								/>
 								<span className="font-medium text-gray-800">Thanh toán khi nhận hàng (COD)</span>
+							</label>
+
+							{/* Option 2: QR Code / Banking */}
+							<label className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition ${formData.paymentMethod === "BANKING" ? "border-primary bg-blue-50" : "hover:bg-gray-50"}`}>
+								<input
+									type="radio"
+									name="payment"
+									value="BANKING"
+									checked={formData.paymentMethod === "BANKING"}
+									onChange={() => setFormData({ ...formData, paymentMethod: "BANKING" })}
+									className="w-5 h-5 text-primary focus:ring-primary"
+								/>
+								<div className="flex-1">
+									<div className="flex items-center justify-between">
+										<span className="font-medium text-gray-800">Chuyển khoản / Quét mã QR</span>
+										<QrCode size={20} className="text-blue-600" />
+									</div>
+									<p className="text-xs text-gray-500 mt-1">Hỗ trợ tất cả App Ngân hàng & MoMo</p>
+								</div>
 							</label>
 						</div>
 					</div>
@@ -216,7 +242,6 @@ export default function Checkout() {
 								<span>{formatCurrency(subtotal)}</span>
 							</div>
 
-							{/* --- Hiển thị dòng Giảm giá nếu có --- */}
 							{discountAmount > 0 && (
 								<div className="flex justify-between text-green-600 font-medium">
 									<span>Voucher giảm ({discountPercent}%)</span>

@@ -22,6 +22,7 @@ import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Review from "./pages/Review";
+import PaymentPage from "./pages/PaymentPage";
 
 export default function App() {
 	return (
@@ -33,9 +34,10 @@ export default function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
-				<Route path="/products" element={<Products />} />{" "}
+				<Route path="/products" element={<Products />} />
 				<Route path="/product/:id" element={<ProductDetail />} />
-				{/* Protected for logged users */}
+
+				{/* --- Protected for logged users (Khách hàng) --- */}
 				<Route
 					path="/cart"
 					element={
@@ -49,6 +51,15 @@ export default function App() {
 					element={
 						<ProtectedRoute>
 							<Checkout />
+						</ProtectedRoute>
+					}
+				/>
+				{/* 👇 Đặt PaymentPage ở đây mới đúng (Khách hàng truy cập được) */}
+				<Route
+					path="/payment/:id"
+					element={
+						<ProtectedRoute>
+							<PaymentPage />
 						</ProtectedRoute>
 					}
 				/>
@@ -76,32 +87,20 @@ export default function App() {
 						</ProtectedRoute>
 					}
 				/>
-				{/* Admin routes */}
+
+				{/* --- Admin routes (Chỉ Admin) --- */}
 				<Route
 					path="/admin"
 					element={
 						<ProtectedRoute adminOnly>
-							<AdminLayout /> {/* 1. Render layout cha */}
+							<AdminLayout />
 						</ProtectedRoute>
 					}>
-					{/* 2. Đây là các trang con sẽ render bên trong <Outlet /> */}
-
-					{/* /admin (index = true nghĩa là trang mặc định) */}
 					<Route index element={<AdminDashboard />} />
-
-					{/* /admin/products */}
 					<Route path="products" element={<AdminProducts />} />
-
-					{/* /admin/orders */}
 					<Route path="orders" element={<AdminOrders />} />
-
-					{/* /admin/users */}
 					<Route path="users" element={<AdminUsers />} />
-
-					{/* /admin/reports */}
 					<Route path="reports" element={<AdminReports />} />
-
-					{/* /admin/categories */}
 					<Route path="categories" element={<AdminCategories />} />
 					<Route path="coupons" element={<AdminCoupons />} />
 				</Route>
