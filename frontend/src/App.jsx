@@ -11,6 +11,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
 import AdminReports from "./pages/AdminReports";
 import AdminUsers from "./pages/AdminUsers";
+import AdminCoupons from "./pages/AdminCoupons";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Home from "./pages/Home";
@@ -102,6 +103,7 @@ export default function App() {
 
 					{/* /admin/categories */}
 					<Route path="categories" element={<AdminCategories />} />
+					<Route path="coupons" element={<AdminCoupons />} />
 				</Route>
 			</Routes>
 			<Chatbot />

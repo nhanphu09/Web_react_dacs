@@ -1,6 +1,6 @@
 import { CheckCircle, CreditCard, MapPin, Phone, Truck, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // Thêm useLocation
 import { toast } from "react-toastify";
 import api from "../api/client";
 import { useAuth } from "../context/AuthProvider";
@@ -8,6 +8,11 @@ import { useAuth } from "../context/AuthProvider";
 export default function Checkout() {
 	const { user } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation(); // Hook để nhận dữ liệu từ trang Cart
+
+	// Lấy thông tin giảm giá từ state (nếu có), mặc định là 0
+	const { discountPercent = 0, discountAmount = 0 } = location.state || {};
+
 	const [cart, setCart] = useState([]);
 	const [loading, setLoading] = useState(false);
 
@@ -40,10 +45,17 @@ export default function Checkout() {
 		}
 	}, [user, navigate]);
 
-	// Tính toán tiền
+	// --- TÍNH TOÁN TIỀN ---
 	const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 	const shipping = subtotal > 1000000 ? 0 : 30000;
-	const total = subtotal + shipping;
+
+	// Tổng tiền cuối cùng = Tạm tính - Giảm giá + Ship
+	const total = subtotal - discountAmount + shipping;
+
+	// Helper format tiền
+	const formatCurrency = (amount) => {
+		return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+	};
 
 	const handlePlaceOrder = async (e) => {
 		e.preventDefault();
@@ -55,7 +67,7 @@ export default function Checkout() {
 					product: item.product,
 					quantity: item.qty
 				})),
-				totalPrice: total,
+				totalPrice: total, // Gửi tổng tiền đã trừ giảm giá
 				paymentMethod: formData.paymentMethod,
 				shippingAddress: {
 					name: formData.name,
@@ -65,6 +77,7 @@ export default function Checkout() {
 					city: formData.city,
 					postal: "10000"
 				}
+				// Nếu backend hỗ trợ lưu thông tin coupon, bạn có thể thêm trường discount vào đây
 			};
 
 			const { data } = await api.post("/orders", orderPayload);
@@ -191,7 +204,7 @@ export default function Checkout() {
 										<span className="text-gray-800 truncate max-w-[150px]" title={item.title}>{item.title}</span>
 									</div>
 									<span className="font-medium">
-										{(item.price * item.qty).toLocaleString("vi-VN")} đ
+										{formatCurrency(item.price * item.qty)}
 									</span>
 								</div>
 							))}
@@ -200,15 +213,25 @@ export default function Checkout() {
 						<div className="border-t pt-4 space-y-2 text-gray-600">
 							<div className="flex justify-between">
 								<span>Tạm tính</span>
-								<span>{subtotal.toLocaleString("vi-VN")} đ</span>
+								<span>{formatCurrency(subtotal)}</span>
 							</div>
+
+							{/* --- Hiển thị dòng Giảm giá nếu có --- */}
+							{discountAmount > 0 && (
+								<div className="flex justify-between text-green-600 font-medium">
+									<span>Voucher giảm ({discountPercent}%)</span>
+									<span>-{formatCurrency(discountAmount)}</span>
+								</div>
+							)}
+
 							<div className="flex justify-between">
 								<span>Phí vận chuyển</span>
-								<span>{shipping === 0 ? "0 đ" : shipping.toLocaleString("vi-VN") + " đ"}</span>
+								<span>{shipping === 0 ? "Miễn phí" : formatCurrency(shipping)}</span>
 							</div>
+
 							<div className="flex justify-between text-xl font-bold text-primary pt-2 border-t mt-2">
 								<span>Tổng cộng</span>
-								<span>{total.toLocaleString("vi-VN")} đ</span>
+								<span>{formatCurrency(total)}</span>
 							</div>
 						</div>
 

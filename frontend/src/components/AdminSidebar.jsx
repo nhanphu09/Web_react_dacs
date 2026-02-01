@@ -10,6 +10,7 @@ export default function AdminSidebar() {
 		{ to: "/admin/users", label: "👥 Người dùng" },
 		{ to: "/admin/categories", label: "🗂 Danh mục & Thương hiệu" },
 		{ to: "/admin/reports", label: "📈 Báo cáo" },
+		{ to: "/admin/coupons", label: "🎟️ Mã giảm giá" },
 	];
 
 	return (
@@ -20,9 +21,8 @@ export default function AdminSidebar() {
 					<Link
 						key={link.to}
 						to={link.to}
-						className={`px-3 py-2 rounded-md hover:bg-gray-700 ${
-							location.pathname === link.to ? "bg-gray-700" : ""
-						}`}>
+						className={`px-3 py-2 rounded-md hover:bg-gray-700 ${location.pathname === link.to ? "bg-gray-700" : ""
+							}`}>
 						{link.label}
 					</Link>
 				))}

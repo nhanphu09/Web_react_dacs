@@ -21,6 +21,8 @@ import productRoutes from "./routes/productRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { createAdminIfMissing } from "./utils/seedAdmin.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -53,6 +55,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/coupons", couponRoutes);
 
 // Xử lý lỗi
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
