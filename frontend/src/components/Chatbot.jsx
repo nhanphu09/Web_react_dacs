@@ -66,8 +66,8 @@ export default function Chatbot() {
 										{msg.isUser ? <User size={16} /> : <Bot size={16} />}
 									</div>
 									<div className={`p-3 rounded-2xl text-sm ${msg.isUser
-											? "bg-primary text-white rounded-tr-none"
-											: "bg-white border text-gray-700 rounded-tl-none shadow-sm"
+										? "bg-primary text-white rounded-tr-none"
+										: "bg-white border text-gray-700 rounded-tl-none shadow-sm"
 										}`}>
 										{msg.text}
 									</div>
@@ -94,7 +94,15 @@ export default function Chatbot() {
 							className="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
 							value={input}
 							onChange={(e) => setInput(e.target.value)}
-							onKeyDown={(e) => e.key === "Enter" && handleSend()}
+							onKeyDown={(e) => {
+								// Kiểm tra nếu đang gõ tiếng Việt (IME composition) thì KHÔNG gửi
+								if (e.nativeEvent.isComposing) return;
+
+								if (e.key === "Enter") {
+									e.preventDefault(); // Chặn hành vi xuống dòng mặc định
+									handleSend();
+								}
+							}}
 						/>
 						<button
 							onClick={handleSend}
