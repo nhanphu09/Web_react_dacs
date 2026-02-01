@@ -1,186 +1,123 @@
-import { ShoppingBag, ShoppingCart, Trash2 } from "lucide-react";
+import { ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import QuantityInput from "../components/QuantityInput";
 
 export default function Cart() {
 	const [cart, setCart] = useState([]);
-	const [promoCode, setPromoCode] = useState("");
 	const navigate = useNavigate();
 
+	// Load giỏ hàng từ LocalStorage
 	useEffect(() => {
-		const stored = JSON.parse(localStorage.getItem("cart") || "[]");
-		setCart(stored);
+		const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+		setCart(storedCart);
 	}, []);
 
-	const updateQty = (index, qty) => {
-		const newCart = [...cart];
-		newCart[index].qty = Math.max(1, Number(qty));
-		setCart(newCart);
-		localStorage.setItem("cart", JSON.stringify(newCart));
+	// Cập nhật số lượng
+	const updateQty = (productId, newQty) => {
+		const updatedCart = cart.map((item) =>
+			item.product === productId ? { ...item, qty: Math.max(1, newQty) } : item
+		);
+		setCart(updatedCart);
+		localStorage.setItem("cart", JSON.stringify(updatedCart));
 	};
 
-	const removeItem = (index) => {
-		const newCart = cart.filter((_, i) => i !== index);
-		setCart(newCart);
-		localStorage.setItem("cart", JSON.stringify(newCart));
+	// Xóa sản phẩm
+	const removeItem = (productId) => {
+		const updatedCart = cart.filter((item) => item.product !== productId);
+		setCart(updatedCart);
+		localStorage.setItem("cart", JSON.stringify(updatedCart));
+		toast.info("Đã xóa sản phẩm khỏi giỏ.");
 	};
 
-	const subtotal = cart.reduce(
-		(sum, item) => sum + (item.price || 0) * item.qty,
-		0
-	);
-	const shipping = subtotal > 1000000 ? 0 : 30000;
-	const total = subtotal + shipping;
-
-	const formatCurrency = (amount) => {
-		return amount.toLocaleString("vi-VN", {
-			style: "currency",
-			currency: "VND",
-		});
-	};
+	// Logic tính tiền
+	const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+	const shippingFee = subtotal > 1000000 ? 0 : 30000; // Miễn phí nếu > 1 triệu
+	const total = subtotal + shippingFee;
 
 	return (
-		// --- THAY ĐỔI: Giảm padding và lề trên mobile ---
-		<div className="max-w-7xl mx-auto p-4 md:p-6 mt-4 md:mt-10">
-			{/* --- THAY ĐỔI: Giảm cỡ chữ trên mobile --- */}
-			<h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
+		<div className="max-w-7xl mx-auto p-4 md:p-8 min-h-screen">
+			<h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
 				<ShoppingBag className="text-primary" /> Giỏ hàng của bạn
 			</h2>
 
-			{/* PHẦN HIỂN THỊ KHI GIỎ HÀNG TRỐNG */}
 			{cart.length === 0 ? (
-				// --- THAY ĐỔI: Giảm padding và cỡ chữ trên mobile ---
-				<div className="text-center py-12 md:py-20 bg-white rounded-2xl shadow-lg text-gray-500">
-					<ShoppingCart size={64} className="mx-auto text-gray-300" />
-					<h3 className="text-xl md:text-2xl font-semibold text-gray-800 mt-4">
-						Giỏ hàng của bạn đang trống
-					</h3>
-					<p className="text-base md:text-lg mb-6 mt-2">
-						Trông có vẻ như bạn chưa thêm sản phẩm nào vào giỏ.
-					</p>
-					<button
-						onClick={() => navigate("/products")}
-						className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-transform transform hover:scale-105">
-						🛍️ Bắt đầu mua sắm
-					</button>
+				<div className="text-center py-16 bg-white rounded-xl shadow-sm">
+					<img
+						src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
+						alt="Empty Cart"
+						className="w-32 h-32 mx-auto mb-4 opacity-50"
+					/>
+					<p className="text-gray-500 text-lg mb-6">Giỏ hàng đang trống trơn!</p>
+					<Link
+						to="/products"
+						className="bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-secondary transition">
+						Mua sắm ngay
+					</Link>
 				</div>
 			) : (
-				// Bố cục này đã responsive (lg:grid-cols-3), rất tốt!
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-					{/* CỘT BÊN TRÁI: DANH SÁCH SẢN PHẨM */}
-					{/* --- THAY ĐỔI: Giảm padding trên mobile --- */}
-					<div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-2xl shadow-lg">
-						<div className="space-y-5">
-							{cart.map((item, index) => (
-								<div
-									key={index}
-									// --- THAY ĐỔI: 'items-start' trên mobile, 'items-center' trên desktop ---
-									className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-gray-200 pb-5">
-									{/* Thông tin sản phẩm */}
-									{/* --- THAY ĐỔI: Giảm 'gap' trên mobile --- */}
-									<div className="flex items-center gap-3 md:gap-5 flex-1 mb-4 md:mb-0 w-full">
-										<div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-											<img
-												src={item.image}
-												alt={item.title}
-												className="object-contain w-full h-full"
-											/>
-										</div>
-										<div>
-											{/* --- THAY ĐỔI: Giảm cỡ chữ trên mobile --- */}
-											<p className="font-semibold text-base md:text-lg text-gray-800">
-												{item.title}
-											</p>
-											<p className="text-gray-600 text-sm">
-												Giá:{" "}
-												<span className="text-primary font-medium">
-													{formatCurrency(item.price)}
-												</span>
-											</p>
-										</div>
-									</div>
-
-									{/* Số lượng và nút xóa */}
-									{/* --- THAY ĐỔI: Căn phải (self-end) trên mobile --- */}
-									<div className="flex items-center gap-4 self-end md:self-auto">
-										<QuantityInput
-											value={item.qty}
-											onDecrease={() => updateQty(index, item.qty - 1)}
-											onIncrease={() => updateQty(index, item.qty + 1)}
-											onChange={(newQty) => updateQty(index, newQty)}
-										/>
-										<button
-											onClick={() => removeItem(index)}
-											className="text-gray-500 hover:text-red-600 transition">
-											<Trash2 size={20} />
-										</button>
-									</div>
+				<div className="flex flex-col lg:flex-row gap-8">
+					{/* Danh sách sản phẩm */}
+					<div className="flex-1 space-y-4">
+						{cart.map((item) => (
+							<div key={item.product} className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm border">
+								<img
+									src={item.image}
+									alt={item.title}
+									className="w-24 h-24 object-contain rounded-md border"
+								/>
+								<div className="flex-1 text-center sm:text-left">
+									<h3 className="font-semibold text-gray-800 text-lg line-clamp-1">{item.title}</h3>
+									<p className="text-primary font-bold">
+										{item.price.toLocaleString("vi-VN")} đ
+									</p>
 								</div>
-							))}
-						</div>
-					</div>
 
-					{/* CỘT BÊN PHẢI: TÓM TẮT ĐƠN HÀNG */}
-					<div className="lg:col-span-1 h-fit lg:sticky lg:top-24">
-						{/* --- THAY ĐỔI: Giảm padding trên mobile --- */}
-						<div className="bg-white p-4 md:p-6 rounded-2xl shadow-lg">
-							<h3 className="text-xl font-bold mb-4 border-b pb-3">
-								Tóm tắt đơn hàng
-							</h3>
-
-							{/* Ô MÃ KHUYẾN MÃI (Giữ nguyên) */}
-							<div className="mb-4">
-								<label className="block text-sm font-medium text-gray-700 mb-1">
-									Mã khuyến mãi
-								</label>
-								<div className="flex">
-									<input
-										type="text"
-										value={promoCode}
-										onChange={(e) => setPromoCode(e.target.value)}
-										placeholder="Nhập mã của bạn"
-										className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+								<div className="flex items-center gap-4">
+									<QuantityInput
+										value={item.qty}
+										onChange={(val) => updateQty(item.product, val)}
+										onIncrease={() => updateQty(item.product, item.qty + 1)}
+										onDecrease={() => updateQty(item.product, item.qty - 1)}
 									/>
-									<button className="bg-gray-800 text-white px-4 rounded-r-md text-sm font-semibold hover:bg-gray-700">
-										Áp dụng
+									<button
+										onClick={() => removeItem(item.product)}
+										className="text-gray-400 hover:text-red-600 transition p-2">
+										<Trash2 size={20} />
 									</button>
 								</div>
 							</div>
+						))}
+					</div>
 
-							{/* Phần tính tiền (Giữ nguyên) */}
-							<div className="space-y-3 text-gray-700 border-t pt-4">
+					{/* Tóm tắt đơn hàng */}
+					<div className="w-full lg:w-96">
+						<div className="bg-white p-6 rounded-xl shadow-lg border sticky top-24">
+							<h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Tóm tắt đơn hàng</h3>
+
+							<div className="space-y-3 mb-6 text-gray-600">
 								<div className="flex justify-between">
 									<span>Tạm tính:</span>
-									<span className="font-medium text-gray-900">
-										{formatCurrency(subtotal)}
-									</span>
+									<span className="font-medium">{subtotal.toLocaleString("vi-VN")} đ</span>
 								</div>
 								<div className="flex justify-between">
-									<span>Vận chuyển:</span>
-									<span className="font-medium text-gray-900">
-										{shipping === 0 ? "Miễn phí" : formatCurrency(shipping)}
+									<span>Phí vận chuyển:</span>
+									<span className="font-medium">
+										{shippingFee === 0 ? <span className="text-green-600">Miễn phí</span> : `${shippingFee.toLocaleString("vi-VN")} đ`}
 									</span>
 								</div>
-								<div className="border-t pt-3 mt-3 flex justify-between text-xl font-bold">
-									<span className="text-gray-900">Tổng cộng:</span>
-									<span className="text-primary">{formatCurrency(total)}</span>
+								<div className="flex justify-between text-lg font-bold text-gray-900 border-t pt-3 mt-3">
+									<span>Tổng cộng:</span>
+									<span className="text-primary">{total.toLocaleString("vi-VN")} đ</span>
 								</div>
 							</div>
 
-							{/* Nút bấm (Giữ nguyên) */}
-							<div className="mt-6 space-y-3">
-								<button
-									onClick={() => navigate("/checkout")}
-									className="w-full bg-primary text-white px-5 py-3 rounded-lg font-semibold hover:bg-secondary transition">
-									Thanh toán 💳
-								</button>
-								<button
-									onClick={() => navigate("/products")}
-									className="w-full border border-primary text-primary px-4 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition">
-									⬅️ Tiếp tục mua sắm
-								</button>
-							</div>
+							<button
+								onClick={() => navigate("/checkout")}
+								className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-secondary transition flex items-center justify-center gap-2 shadow-lg shadow-red-100">
+								Tiến hành đặt hàng <ArrowRight size={20} />
+							</button>
 						</div>
 					</div>
 				</div>
