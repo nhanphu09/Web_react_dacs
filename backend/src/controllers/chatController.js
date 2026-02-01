@@ -7,7 +7,7 @@ export const handleChat = async (req, res) => {
 	try {
 		const { message } = req.body;
 
-		// 1. Lấy dữ liệu sản phẩm (Giữ nguyên logic cũ)
+		// 1. Lấy dữ liệu sản phẩm
 		const products = await Product.find({})
 			.select("title price description stock")
 			.limit(30);
@@ -16,7 +16,7 @@ export const handleChat = async (req, res) => {
 			.map((p) => `- ${p.title} (${p.price.toLocaleString("vi-VN")}đ): ${(p.description || "").substring(0, 100)}...`)
 			.join("\n");
 
-		// 2. Prompt (Giữ nguyên)
+		// 2. Prompt
 		const systemPrompt = `
         Bạn là nhân viên tư vấn của PkaShop. Dữ liệu sản phẩm:
         ${productContext}
@@ -25,9 +25,11 @@ export const handleChat = async (req, res) => {
         Trả lời ngắn gọn, thân thiện, bán hàng khéo léo.
         `;
 
-		// 3. GỌI TRỰC TIẾP API CỦA GOOGLE (Không dùng thư viện SDK nữa)
+		// 3. GỌI API (SỬA LẠI URL NÀY)
 		const apiKey = process.env.GEMINI_API_KEY;
-		const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+		// 👇 THAY ĐỔI Ở ĐÂY: Chuyển về 'gemini-pro' (Model quốc dân, chắc chắn chạy)
+		const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
 		const response = await fetch(apiUrl, {
 			method: "POST",
@@ -39,15 +41,12 @@ export const handleChat = async (req, res) => {
 			})
 		});
 
-		// Xử lý lỗi từ Google trả về
 		if (!response.ok) {
 			const errorData = await response.text();
 			throw new Error(`Gemini API Error: ${errorData}`);
 		}
 
 		const data = await response.json();
-
-		// Lấy câu trả lời từ JSON phức tạp của Google
 		const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, mình chưa hiểu ý bạn.";
 
 		res.json({ reply: text });
