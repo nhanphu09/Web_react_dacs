@@ -25,11 +25,11 @@ export const handleChat = async (req, res) => {
         Trả lời ngắn gọn, thân thiện, bán hàng khéo léo.
         `;
 
-		// 3. GỌI API (SỬA LẠI URL NÀY)
+		// 3. GỌI API (ĐÃ SỬA DÙNG MODEL 2.5 FLASH)
 		const apiKey = process.env.GEMINI_API_KEY;
 
-		// 👇 THAY ĐỔI Ở ĐÂY: Chuyển về 'gemini-pro' (Model quốc dân, chắc chắn chạy)
-		const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+		// 👇 URL CHUẨN XÁC TỪ DANH SÁCH BẠN VỪA QUÉT ĐƯỢC
+		const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
 		const response = await fetch(apiUrl, {
 			method: "POST",
