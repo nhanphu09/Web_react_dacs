@@ -18,7 +18,8 @@
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.19.1",
 		"multer": "^2.0.2",
-		"multer-storage-cloudinary": "^2.2.1"
+		"multer-storage-cloudinary": "^2.2.1",
+		"nodemailer": "^7.0.13"
 	},
 	"devDependencies": {
 		"kill-port": "^2.0.1",

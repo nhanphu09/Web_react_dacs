@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import { sendOrderEmail } from "../utils/sendEmail.js";
 
 // --- 1. Lấy danh sách đơn hàng (Admin - Có lọc & phân trang) ---
 export const getOrders = async (req, res) => {
@@ -88,6 +89,15 @@ export const createOrder = async (req, res) => {
 				}
 			);
 		}
+
+		// Lấy email từ form đặt hàng (shippingAddress.email) hoặc tài khoản user
+		const emailTo = shippingAddress.email || req.user.email;
+
+		// Populate thông tin sản phẩm để trong email hiện tên SP thay vì ID
+		const populatedOrder = await Order.findById(createdOrder._id).populate("products.product");
+
+		sendOrderEmail(emailTo, populatedOrder);
+
 		res.status(201).json(createdOrder);
 	} catch (err) {
 		res.status(400).json({ message: err.message });
