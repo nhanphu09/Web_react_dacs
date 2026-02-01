@@ -4,13 +4,14 @@ import express from "express";
 import connectDB from "./config/db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
-// BẮT BUỘC: Import tất cả các Models để Mongoose tải chúng
+// Import Models
 import Brand from "./models/Brand.js";
 import Category from "./models/Category.js";
 import Order from "./models/Order.js";
 import Product from "./models/Product.js";
 import User from "./models/User.js";
 
+// Import Routes
 import authRoutes from "./routes/authRoutes.js";
 import brandRoutes from "./routes/brandRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -24,46 +25,26 @@ import { createAdminIfMissing } from "./utils/seedAdmin.js";
 dotenv.config();
 const app = express();
 
-// 🟢 1. MIDDLEWARE: Xử lý CORS THỦ CÔNG & OPTIONS (FIX CỨNG)
-app.use((req, res, next) => {
-	const allowedOrigins = [
-		process.env.FRONTEND_URL,
-		"http://localhost:5173", // Frontend dev URL
-	];
+// 🟢 CẤU HÌNH CORS CHUẨN (Thay thế toàn bộ đoạn thủ công cũ)
+const corsOptions = {
+	origin: [
+		process.env.FRONTEND_URL,       // URL trên Vercel (nếu có trong .env)
+		"http://localhost:5173",        // Localhost thường
+		"http://127.0.0.1:5173",        // Localhost IP
+	].filter(Boolean),                  // Lọc bỏ giá trị null/undefined
+	credentials: true,                  // Cho phép cookie/token
+	methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-	const origin = req.headers.origin;
-	if (origin && allowedOrigins.includes(origin)) {
-		res.setHeader("Access-Control-Allow-Origin", origin);
-	} else {
-		// Cho phép Postman (không có origin)
-		res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-	}
-
-	res.setHeader(
-		"Access-Control-Allow-Methods",
-		"GET, POST, PUT, DELETE, PATCH, OPTIONS"
-	);
-	res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-	res.setHeader("Access-Control-Allow-Credentials", "true");
-
-	// Xử lý yêu cầu OPTIONS (Preflight)
-	if (req.method === "OPTIONS") {
-		return res.sendStatus(200);
-	}
-
-	next();
-});
-
-// 2. Body Parser
-app.use(express.json());
-
-// 3. Sử dụng CORS Middleware
-const corsOptions = { credentials: true };
 app.use(cors(corsOptions));
+
+// Body Parser
+app.use(express.json());
 
 app.get("/", (req, res) => res.send("✅ Backend is running!"));
 
-// 4. ROUTES
+// ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -73,7 +54,7 @@ app.use("/api/brands", brandRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Xử lý lỗi (Giữ nguyên)
+// Xử lý lỗi
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 app.use(errorHandler);
 
@@ -81,24 +62,15 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 (async () => {
 	try {
-		// 1. Kiểm tra Key
 		if (process.env.GEMINI_API_KEY) {
-			console.log(
-				"✅ Chatbot API Key loaded successfully. (Length:",
-				process.env.GEMINI_API_KEY.length,
-				")"
-			);
+			console.log("✅ Chatbot API Key loaded.");
 		} else {
-			console.error(
-				"❌ Chatbot API Key NOT found in environment variables. CHECK .env FILE!"
-			);
+			console.warn("⚠️ Chatbot API Key missing in .env");
 		}
 
-		// 2. Kết nối DB
 		await connectDB();
 		await createAdminIfMissing();
 
-		// 3. Khởi động Server
 		app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 	} catch (error) {
 		console.error("Failed to start server:", error.message);
