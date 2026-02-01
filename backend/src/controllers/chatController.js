@@ -1,90 +1,54 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import mongoose from "mongoose";
+import Product from "../models/Product.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Khởi tạo Gemini
-const apiKey = process.env.GEMINI_API_KEY
-	? process.env.GEMINI_API_KEY.trim()
-	: null;
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-if (!apiKey) {
-	console.error("🔴 LỖI CẤU HÌNH: GEMINI_API_KEY không được tìm thấy.");
-}
-
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-
-export const chatWithAI = async (req, res) => {
-	if (!genAI) {
-		console.error("🔴 Chatbot Error: genAI object is null.");
-		return res.status(500).json({ message: "Lỗi cấu hình AI trên server." });
-	}
-
+export const handleChat = async (req, res) => {
 	try {
 		const { message } = req.body;
 
-		const ProductModel = mongoose.model("Product");
+		// 1. Lấy danh sách sản phẩm từ DB (Chỉ lấy tên, giá và mô tả ngắn để tiết kiệm Token)
+		// Giới hạn 30 sản phẩm mới nhất để tránh quá tải context
+		const products = await Product.find({})
+			.select("title price description stock")
+			.limit(30);
 
-		// 1. Lấy dữ liệu sản phẩm từ DB
-		const products = await ProductModel.find({})
-			.select("title price stock")
-			.limit(20);
-
-		// 2. TẠO CONTEXT DẠNG CHUỖI THUẦN (ĐÃ FIX: KHÔNG DÙNG toLocaleString cho AI)
+		// 2. Tạo đoạn văn bản chứa dữ liệu sản phẩm (Context)
 		const productContext = products
 			.map(
 				(p) =>
-					// 🟢 Cung cấp số "sạch" (raw number) cho AI
-					`Tên: ${p.title} | Giá: ${p.price} VND | Kho: ${p.stock}`
+					`- Tên: ${p.title} | Giá: ${p.price.toLocaleString("vi-VN")}đ | Tồn kho: ${p.stock} | Mô tả: ${p.description.substring(0, 100)}...`
 			)
 			.join("\n");
 
-		console.log(
-			`✅ MongoDB Read: ${products.length} products found for AI context.`
-		);
-		console.log(
-			`🟢 AI Context Preview: ${JSON.stringify(products.slice(0, 3))}`
-		);
+		// 3. Thiết lập vai trò cho AI (Prompt Engineering)
+		const systemPrompt = `
+      Bạn là nhân viên tư vấn bán hàng nhiệt tình của cửa hàng "PkaShop".
+      Dưới đây là danh sách sản phẩm hiện có của cửa hàng:
+      ${productContext}
 
-		// 3. Cấu hình Prompt
-		const prompt = `
-        Bạn là nhân viên hỗ trợ khách hàng (Chatbot) của cửa hàng "PKA Shop".
-        Hãy trả lời thân thiện, sử dụng tiếng Việt, và luôn đưa ra phản hồi.
-        Nếu bạn không tìm thấy sản phẩm, hãy gợi ý các danh mục chung và hotline (0392324050).
-        
-        THÔNG TIN DỮ LIỆU SẢN PHẨM:
-        ${productContext}
-        
-        DỰA TRÊN THÔNG TIN TRÊN, hãy trả lời câu hỏi sau: "${message}"
+      Quy tắc trả lời:
+      1. Chỉ trả lời dựa trên danh sách sản phẩm ở trên.
+      2. Nếu khách hỏi sản phẩm không có trong danh sách, hãy gợi ý sản phẩm tương tự hoặc nói khéo là hết hàng.
+      3. Trả lời ngắn gọn, thân thiện, dùng emoji, xưng hô là "mình" và "bạn".
+      4. Luôn khuyến khích khách thêm vào giỏ hàng.
+      
+      Câu hỏi của khách: "${message}"
     `;
 
-		// 4. Gửi yêu cầu đến Gemini
-		const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-		const result = await model.generateContent(prompt);
-
-		console.log("Gemini raw result:", JSON.stringify(result, null, 2));
-
-		// Lấy text đúng trường
-		const text = result.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-		// 5. Kiểm tra và xử lý phản hồi rỗng
-		if (typeof text !== "string" || text.trim().length === 0) {
-			console.error(
-				"🔴 AI Response Failure: Gemini returned non-string or empty content."
-			);
-			return res.json({
-				reply:
-					"Xin lỗi, tôi gặp sự cố khi tìm kiếm chi tiết sản phẩm. Vui lòng thử hỏi lại.",
-			});
-		}
-
-		const logText = text.substring(0, 50);
-		console.log(`✅ AI Response for "${message}": ${logText}...`);
+		// 4. Gọi Gemini API
+		const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+		const result = await model.generateContent(systemPrompt);
+		const response = await result.response;
+		const text = response.text();
 
 		res.json({ reply: text });
 	} catch (error) {
-		console.error("🔴 Chatbot FINAL FATAL ERROR:", error.message);
-		res
-			.status(500)
-			.json({ message: "AI đang bận hoặc gặp lỗi cấu trúc nội bộ." });
+		console.error("Chatbot Error:", error);
+		res.status(500).json({ reply: "Xin lỗi, hệ thống đang bận. Bạn chờ chút nhé! 🤖" });
 	}
 };

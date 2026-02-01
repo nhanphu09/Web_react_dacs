@@ -1,62 +1,34 @@
-import { MessageCircle, Send, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { MessageCircle, Send, X, Bot, User } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import api from "../api/client";
 
 export default function Chatbot() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [messages, setMessages] = useState([
-		{
-			text: "Xin chào! Tôi là trợ lý AI của PKA Shop. Tôi có thể giúp gì cho bạn?",
-			sender: "bot",
-		},
+		{ text: "Xin chào! Mình là AI của PkaShop. Bạn cần tìm sản phẩm gì nhỉ? 👋", isUser: false }
 	]);
 	const [input, setInput] = useState("");
 	const [loading, setLoading] = useState(false);
 	const messagesEndRef = useRef(null);
 
-	// Tự động cuộn xuống tin nhắn mới nhất
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	};
-
+	// Tự động cuộn xuống cuối khi có tin nhắn mới
 	useEffect(() => {
-		scrollToBottom();
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages, isOpen]);
 
-	const handleSend = async (e) => {
-		e.preventDefault();
+	const handleSend = async () => {
 		if (!input.trim()) return;
 
-		const userMessage = input;
-		setMessages((prev) => [...prev, { text: userMessage, sender: "user" }]);
+		const userMsg = input;
+		setMessages(prev => [...prev, { text: userMsg, isUser: true }]);
 		setInput("");
 		setLoading(true);
 
 		try {
-			// Gọi API Chat ở backend
-			const res = await api.post("/chat", { message: userMessage });
-
-			// 🟢 LOG DEBUG: In phản hồi từ server ra console
-			console.log("✅ Server response received:", res.data);
-
-			// Đảm bảo không xử lý tin nhắn trống
-			if (res.data?.reply) {
-				setMessages((prev) => [
-					...prev,
-					{ text: res.data.reply, sender: "bot" },
-				]);
-			} else {
-				setMessages((prev) => [
-					...prev,
-					{ text: "AI không thể trả lời câu hỏi này.", sender: "bot" },
-				]);
-			}
+			const { data } = await api.post("/chat", { message: userMsg });
+			setMessages(prev => [...prev, { text: data.reply, isUser: false }]);
 		} catch (error) {
-			console.error("❌ Frontend Chat Error:", error);
-			setMessages((prev) => [
-				...prev,
-				{ text: "Xin lỗi, tôi đang gặp sự cố kết nối.", sender: "bot" },
-			]);
+			setMessages(prev => [...prev, { text: "Xin lỗi, mình đang bị lag xíu. Thử lại sau nhé!", isUser: false }]);
 		} finally {
 			setLoading(false);
 		}
@@ -68,72 +40,77 @@ export default function Chatbot() {
 			{isOpen && (
 				<div className="bg-white w-80 md:w-96 h-[500px] rounded-2xl shadow-2xl border border-gray-200 flex flex-col mb-4 overflow-hidden animate-fade-in-up">
 					{/* Header */}
-					<div className="bg-primary text-white p-4 flex justify-between items-center shadow-md">
+					<div className="bg-primary p-4 flex justify-between items-center text-white">
 						<div className="flex items-center gap-2">
-							<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-							<h3 className="font-bold">PKA Shop AI Support</h3>
+							<div className="bg-white/20 p-2 rounded-full">
+								<Bot size={20} />
+							</div>
+							<div>
+								<h3 className="font-bold">Trợ lý ảo AI</h3>
+								<p className="text-xs text-blue-100 flex items-center gap-1">
+									<span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Online
+								</p>
+							</div>
 						</div>
-						<button
-							onClick={() => setIsOpen(false)}
-							className="hover:bg-red-500/20 p-1 rounded">
+						<button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded transition">
 							<X size={20} />
 						</button>
 					</div>
 
-					{/* Body Messages */}
-					<div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3">
+					{/* Nội dung tin nhắn */}
+					<div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
 						{messages.map((msg, index) => (
-							<div
-								key={index}
-								className={`flex ${
-									msg.sender === "user" ? "justify-end" : "justify-start"
-								}`}>
-								<div
-									className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${
-										msg.sender === "user"
+							<div key={index} className={`flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
+								<div className={`flex gap-2 max-w-[80%] ${msg.isUser ? "flex-row-reverse" : "flex-row"}`}>
+									<div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.isUser ? "bg-gray-200" : "bg-primary/10 text-primary"}`}>
+										{msg.isUser ? <User size={16} /> : <Bot size={16} />}
+									</div>
+									<div className={`p-3 rounded-2xl text-sm ${msg.isUser
 											? "bg-primary text-white rounded-tr-none"
-											: "bg-white text-gray-800 border border-gray-200 rounded-tl-none"
-									}`}>
-									{msg.text}
+											: "bg-white border text-gray-700 rounded-tl-none shadow-sm"
+										}`}>
+										{msg.text}
+									</div>
 								</div>
 							</div>
 						))}
 						{loading && (
 							<div className="flex justify-start">
-								<div className="bg-gray-200 text-gray-500 p-3 rounded-2xl rounded-tl-none text-xs italic animate-pulse">
-									AI đang suy nghĩ...
+								<div className="bg-gray-200 p-3 rounded-2xl rounded-tl-none flex gap-1">
+									<span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+									<span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-75"></span>
+									<span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-150"></span>
 								</div>
 							</div>
 						)}
 						<div ref={messagesEndRef} />
 					</div>
 
-					{/* Input Footer */}
-					<form
-						onSubmit={handleSend}
-						className="p-3 bg-white border-t border-gray-200 flex gap-2">
+					{/* Ô nhập liệu */}
+					<div className="p-3 border-t bg-white flex gap-2">
 						<input
 							type="text"
 							placeholder="Hỏi về sản phẩm..."
+							className="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
 							value={input}
 							onChange={(e) => setInput(e.target.value)}
-							className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+							onKeyDown={(e) => e.key === "Enter" && handleSend()}
 						/>
 						<button
-							type="submit"
-							disabled={loading}
+							onClick={handleSend}
+							disabled={loading || !input.trim()}
 							className="bg-primary text-white p-2 rounded-full hover:bg-secondary transition disabled:opacity-50">
-							<Send size={18} />
+							<Send size={20} />
 						</button>
-					</form>
+					</div>
 				</div>
 			)}
 
-			{/* Nút Bật/Tắt (Bubble) */}
+			{/* Nút mở Chat */}
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="bg-primary text-white p-4 rounded-full shadow-lg hover:bg-secondary transition-transform transform hover:scale-110 active:scale-90">
-				{isOpen ? <X size={28} /> : <MessageCircle size={28} />}
+				className="bg-primary text-white p-4 rounded-full shadow-lg hover:bg-secondary transition-transform hover:scale-110 active:scale-95 flex items-center justify-center gap-2">
+				{isOpen ? <X size={24} /> : <MessageCircle size={28} />}
 			</button>
 		</div>
 	);
