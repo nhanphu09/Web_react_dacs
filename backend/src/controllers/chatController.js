@@ -41,7 +41,7 @@ export const handleChat = async (req, res) => {
     `;
 
 		// 4. Gọi Gemini API
-		const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+		const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 		const result = await model.generateContent(systemPrompt);
 		const response = await result.response;
 		const text = response.text();
