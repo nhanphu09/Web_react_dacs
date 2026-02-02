@@ -90,29 +90,18 @@ export const createOrder = async (req, res) => {
 			);
 		}
 
-		// ============================================================
-		// 📧 BẮT ĐẦU QUY TRÌNH GỬI EMAIL (CÓ LOG KIỂM TRA)
-		// ============================================================
+		// 📧 BẮT ĐẦU QUY TRÌNH GỬI EMAIL 
 		const emailTo = shippingAddress.email || req.user.email;
 
-		// Populate để lấy tên sản phẩm hiển thị trong mail
-		const populatedOrder = await Order.findById(createdOrder._id).populate("products.product");
+		// Populate đơn hàng để lấy tên sản phẩm
+		Order.findById(createdOrder._id).populate("products.product")
+			.then(populatedOrder => {
+				console.log(`🚀 Đang gửi email ngầm cho: ${emailTo}...`);
+				return sendOrderEmail(emailTo, populatedOrder);
+			})
+			.then(() => console.log("✅ Email đã được gửi thành công (Background Job)"))
+			.catch(err => console.error("❌ Gửi email thất bại:", err.message));
 
-		console.log("\n===================================================");
-		console.log("🚀 ORDER CREATED! BẮT ĐẦU GỬI EMAIL...");
-		console.log(`👉 Người nhận: ${emailTo}`);
-
-		try {
-			// Thêm await để đợi gửi xong mới chạy tiếp (giúp bắt lỗi chính xác)
-			await sendOrderEmail(emailTo, populatedOrder);
-			console.log("✅ KẾT QUẢ: EMAIL ĐÃ GỬI THÀNH CÔNG!");
-			console.log("💡 Gợi ý: Kiểm tra kỹ Hộp thư đến, Spam, hoặc Quảng cáo.");
-		} catch (emailError) {
-			console.error("❌ KẾT QUẢ: GỬI EMAIL THẤT BẠI!");
-			console.error("🔍 Lỗi chi tiết:", emailError.message);
-			// Lưu ý: Không throw error ở đây để đơn hàng vẫn được tạo thành công dù lỗi mail
-		}
-		console.log("===================================================\n");
 		// ============================================================
 
 		res.status(201).json(createdOrder);
