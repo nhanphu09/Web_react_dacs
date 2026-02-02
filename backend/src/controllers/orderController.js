@@ -36,7 +36,7 @@ export const getOrders = async (req, res) => {
 			if (searchCriteria.length > 0) {
 				filter.$or = searchCriteria;
 			} else {
-				filter._id = new mongoose.Types.ObjectId(); // Không tìm thấy thì trả về rỗng
+				filter._id = new mongoose.Types.ObjectId();
 			}
 		}
 
@@ -58,7 +58,7 @@ export const getOrders = async (req, res) => {
 	}
 };
 
-// --- 2. Tạo đơn hàng mới (Có trừ kho) ---
+// --- 2. Tạo đơn hàng mới (ĐÃ THÊM LOG GỬI EMAIL) ---
 export const createOrder = async (req, res) => {
 	try {
 		const { products, totalPrice, shippingAddress, paymentMethod } = req.body;
@@ -90,16 +90,34 @@ export const createOrder = async (req, res) => {
 			);
 		}
 
-		// Lấy email từ form đặt hàng (shippingAddress.email) hoặc tài khoản user
+		// ============================================================
+		// 📧 BẮT ĐẦU QUY TRÌNH GỬI EMAIL (CÓ LOG KIỂM TRA)
+		// ============================================================
 		const emailTo = shippingAddress.email || req.user.email;
 
-		// Populate thông tin sản phẩm để trong email hiện tên SP thay vì ID
+		// Populate để lấy tên sản phẩm hiển thị trong mail
 		const populatedOrder = await Order.findById(createdOrder._id).populate("products.product");
 
-		sendOrderEmail(emailTo, populatedOrder);
+		console.log("\n===================================================");
+		console.log("🚀 ORDER CREATED! BẮT ĐẦU GỬI EMAIL...");
+		console.log(`👉 Người nhận: ${emailTo}`);
+
+		try {
+			// Thêm await để đợi gửi xong mới chạy tiếp (giúp bắt lỗi chính xác)
+			await sendOrderEmail(emailTo, populatedOrder);
+			console.log("✅ KẾT QUẢ: EMAIL ĐÃ GỬI THÀNH CÔNG!");
+			console.log("💡 Gợi ý: Kiểm tra kỹ Hộp thư đến, Spam, hoặc Quảng cáo.");
+		} catch (emailError) {
+			console.error("❌ KẾT QUẢ: GỬI EMAIL THẤT BẠI!");
+			console.error("🔍 Lỗi chi tiết:", emailError.message);
+			// Lưu ý: Không throw error ở đây để đơn hàng vẫn được tạo thành công dù lỗi mail
+		}
+		console.log("===================================================\n");
+		// ============================================================
 
 		res.status(201).json(createdOrder);
 	} catch (err) {
+		console.error("Lỗi tạo đơn hàng:", err);
 		res.status(400).json({ message: err.message });
 	}
 };
@@ -107,11 +125,10 @@ export const createOrder = async (req, res) => {
 // --- 3. Lấy đơn hàng của tôi (User) ---
 export const getMyOrders = async (req, res) => {
 	try {
-		// Chỉ lấy đơn của chính user đang đăng nhập
 		const orders = await Order.find({ user: req.user._id })
 			.populate("user", "name email")
 			.populate("products.product")
-			.sort({ createdAt: -1 }); // Mới nhất lên đầu
+			.sort({ createdAt: -1 });
 
 		res.json(orders);
 	} catch (err) {
@@ -126,7 +143,6 @@ export const updateOrderStatus = async (req, res) => {
 		if (order) {
 			order.status = req.body.status || order.status;
 
-			// Nếu đơn hàng chuyển sang trạng thái "Delivered", cập nhật thời gian thanh toán
 			if (order.status === "Delivered") {
 				order.isPaid = true;
 				order.paidAt = Date.now();
@@ -145,7 +161,6 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 // --- 5. Lấy chi tiết đơn hàng (User & Admin) ---
-// 🔥 ĐÃ NÂNG CẤP BẢO MẬT
 export const getOrderById = async (req, res) => {
 	try {
 		const order = await Order.findById(req.params.id)
@@ -156,8 +171,6 @@ export const getOrderById = async (req, res) => {
 			return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
 		}
 
-		// 🔒 BẢO MẬT: Kiểm tra xem người xem có phải là chủ đơn hàng hoặc Admin không
-		// req.user._id lấy từ middleware protect
 		if (order.user._id.toString() !== req.user._id.toString() && !req.user.isAdmin) {
 			return res.status(403).json({ message: "Bạn không có quyền xem đơn hàng này" });
 		}
