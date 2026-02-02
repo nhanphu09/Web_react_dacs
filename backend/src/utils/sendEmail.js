@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const sendEmail = async (options) => {
-    // 1. Tạo transporter (Người đưa thư)
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -13,29 +12,29 @@ const sendEmail = async (options) => {
         },
     });
 
-    // 2. Cấu hình email
     const mailOptions = {
         from: `"PkaShop Support" <${process.env.EMAIL_USER}>`,
         to: options.email,
         subject: options.subject,
-        html: options.message, // Dùng HTML để mail đẹp hơn
+        html: options.message,
     };
 
-    // 3. Gửi
     await transporter.sendMail(mailOptions);
 };
 
-// Hàm tạo giao diện HTML cho Email xác nhận đơn hàng
 export const sendOrderEmail = async (email, order) => {
     const formatCurrency = (amount) => amount.toLocaleString("vi-VN") + "đ";
+
+    // 🔥 SỬA LỖI Ở ĐÂY: Chuyển _id thành String trước khi slice
+    const orderId = order._id.toString().slice(-6).toUpperCase();
 
     const productListHtml = order.products
         .map(
             (item) => `
         <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 10px;">${item.product.title || "Sản phẩm"}</td>
+            <td style="padding: 10px;">${item.product?.title || "Sản phẩm"}</td>
             <td style="padding: 10px; text-align: center;">x${item.quantity}</td>
-            <td style="padding: 10px; text-align: right;">${formatCurrency(item.product.price * item.quantity)}</td>
+            <td style="padding: 10px; text-align: right;">${formatCurrency(item.product?.price * item.quantity)}</td>
         </tr>
     `
         )
@@ -52,7 +51,7 @@ export const sendOrderEmail = async (email, order) => {
                 <p>Cảm ơn bạn đã đặt hàng tại PkaShop! Đơn hàng của bạn đang được xử lý.</p>
                 
                 <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <p style="margin: 5px 0;"><strong>Mã đơn hàng:</strong> #${order._id.slice(-6).toUpperCase()}</p>
+                    <p style="margin: 5px 0;"><strong>Mã đơn hàng:</strong> #${orderId}</p>
                     <p style="margin: 5px 0;"><strong>Ngày đặt:</strong> ${new Date().toLocaleDateString("vi-VN")}</p>
                     <p style="margin: 5px 0;"><strong>Phương thức:</strong> ${order.paymentMethod === "COD" ? "Thanh toán khi nhận hàng" : "Chuyển khoản / QR"}</p>
                 </div>
@@ -89,12 +88,11 @@ export const sendOrderEmail = async (email, order) => {
     try {
         await sendEmail({
             email: email,
-            subject: `[PkaShop] Xác nhận đơn hàng #${order._id.slice(-6).toUpperCase()}`,
+            subject: `[PkaShop] Xác nhận đơn hàng #${orderId}`, // Dùng biến orderId đã xử lý
             message: message,
         });
-        console.log("✅ Email sent successfully");
+        // Không log ở đây nữa vì bên Controller đã log rồi
     } catch (error) {
-        console.error("❌ Email send failed:", error);
-        // Không throw error để tránh làm lỗi luồng đặt hàng chính
+        throw error; // Ném lỗi ra để Controller bắt được
     }
 };
