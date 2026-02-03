@@ -204,3 +204,26 @@ export const createProductReview = async (req, res) => {
 		res.status(500).json({ message: err.message });
 	}
 };
+
+export const getRelatedProducts = async (req, res) => {
+	try {
+		// 1. Tìm sản phẩm hiện tại để biết nó thuộc Category nào
+		const currentProduct = await Product.findById(req.params.id);
+
+		if (!currentProduct) {
+			return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+		}
+
+		// 2. Tìm các sản phẩm khác cùng Category (Trừ chính nó ra)
+		const relatedProducts = await Product.find({
+			category: currentProduct.category, // Cùng danh mục
+			_id: { $ne: currentProduct._id }   // $ne = Not Equal (Không trùng ID hiện tại)
+		})
+			.limit(4) // Chỉ lấy 4 cái thôi cho đẹp đội hình
+			.populate("category", "name");
+
+		res.json(relatedProducts);
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+};
