@@ -1,33 +1,34 @@
 import { Check, ChevronRight, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom"; // <--- Thêm useNavigate
 import { toast } from "react-toastify";
 import api from "../api/client";
 import QuantityInput from "../components/QuantityInput";
 
 export default function ProductDetail() {
 	const { id } = useParams();
+	const navigate = useNavigate(); // <--- Hook chuyển trang
 	const [product, setProduct] = useState(null);
 	const [related, setRelated] = useState([]);
 	const [qty, setQty] = useState(1);
 	const [loading, setLoading] = useState(true);
 
+	// ... (Giữ nguyên phần useEffect fetch data) ...
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
 				setLoading(true);
-				// 1. Lấy chi tiết sản phẩm
 				const { data } = await api.get(`/products/${id}`);
 				setProduct(data);
 
-				// 2. Lấy sản phẩm liên quan (Dùng API mới tạo)
-				// Lưu ý: Nếu bước trước bạn chưa làm route này thì dùng cách cũ của bạn cũng được
-				const relatedRes = await api.get(`/products/${id}/related`);
-				setRelated(relatedRes.data);
+				// Fetch related products (nếu có API)
+				try {
+					const relatedRes = await api.get(`/products/${id}/related`);
+					setRelated(relatedRes.data);
+				} catch (e) { console.log("No related products"); }
 
 			} catch (err) {
-				console.error(err); // Log lỗi để debug
-				// Không toast lỗi ở đây để tránh spam nếu api related lỗi nhẹ
+				console.error(err);
 			} finally {
 				setLoading(false);
 			}
@@ -36,7 +37,8 @@ export default function ProductDetail() {
 		window.scrollTo(0, 0);
 	}, [id]);
 
-	const addToCart = () => {
+	// Hàm thêm vào giỏ (Logic gốc + Logic Mua ngay)
+	const addToCart = (isBuyNow = false) => {
 		const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 		const existItem = cart.find((x) => x.product === product._id);
 
@@ -46,15 +48,20 @@ export default function ProductDetail() {
 			cart.push({
 				product: product._id,
 				title: product.title,
-				image: product.image, // Đảm bảo field này khớp với DB (image hoặc images[0])
+				image: product.images?.[0] || product.image,
 				price: product.price,
 				qty,
 			});
 		}
 		localStorage.setItem("cart", JSON.stringify(cart));
-		// Dispatch event để Header cập nhật số lượng ngay lập tức (nếu bạn có dùng logic đó)
-		window.dispatchEvent(new Event("storage"));
-		toast.success(`Đã thêm ${qty} sản phẩm vào giỏ!`);
+		window.dispatchEvent(new Event("storage")); // Cập nhật Header
+
+		// Nếu là Mua ngay thì không hiện thông báo, chuyển trang luôn
+		if (isBuyNow) {
+			navigate("/checkout");
+		} else {
+			toast.success(`Đã thêm ${qty} sản phẩm vào giỏ!`);
+		}
 	};
 
 	if (loading) return <div className="p-10 text-center">Đang tải...</div>;
@@ -72,9 +79,8 @@ export default function ProductDetail() {
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-				{/* Ảnh sản phẩm */}
+				{/* Phần Ảnh giữ nguyên */}
 				<div className="bg-white rounded-2xl shadow-sm border p-6 flex items-center justify-center h-[400px]">
-					{/* Xử lý hiển thị ảnh: Nếu là mảng images thì lấy cái đầu, nếu là string thì lấy trực tiếp */}
 					<img
 						src={product.images && product.images.length > 0 ? product.images[0] : product.image}
 						alt={product.title}
@@ -82,9 +88,11 @@ export default function ProductDetail() {
 					/>
 				</div>
 
-				{/* Thông tin */}
+				{/* Phần Thông tin bên phải */}
 				<div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
+
+					{/* Rating & Sold */}
 					<div className="flex items-center gap-4 mb-4">
 						<div className="flex text-yellow-400">
 							{[...Array(5)].map((_, i) => (
@@ -115,10 +123,24 @@ export default function ProductDetail() {
 						</div>
 					)}
 
+					{/* 👇 SỬA PHẦN NÚT BẤM Ở ĐÂY */}
 					<div className="flex items-center gap-4 mb-8">
 						<QuantityInput value={qty} onChange={setQty} onDecrease={() => qty > 1 && setQty(qty - 1)} onIncrease={() => setQty(qty + 1)} />
-						<button onClick={addToCart} className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg font-bold text-lg hover:bg-gray-800 transition shadow-lg">
-							Thêm vào giỏ hàng
+
+						{/* Nút Thêm vào giỏ (Màu xám/đen) */}
+						<button
+							onClick={() => addToCart(false)}
+							className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-bold text-lg hover:bg-gray-300 transition"
+						>
+							Thêm vào giỏ
+						</button>
+
+						{/* Nút Mua ngay (Màu đỏ/Primary - Nổi bật hơn) */}
+						<button
+							onClick={() => addToCart(true)}
+							className="flex-1 bg-primary text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition shadow-lg shadow-red-200"
+						>
+							Mua ngay
 						</button>
 					</div>
 
@@ -141,7 +163,7 @@ export default function ProductDetail() {
 				</div>
 			</div>
 
-			{/* Mô tả & Đánh giá */}
+			{/* Mô tả, Đánh giá & Sản phẩm liên quan */}
 			<div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
 				{/* Cột trái: Mô tả */}
 				<div className="lg:col-span-2 space-y-8">
@@ -153,9 +175,7 @@ export default function ProductDetail() {
 					</div>
 
 					<div className="bg-white rounded-xl shadow-sm p-6 border">
-						<div className="flex justify-between items-center mb-6">
-							<h2 className="text-xl font-bold">Đánh giá khách hàng</h2>
-						</div>
+						<h2 className="text-xl font-bold mb-6">Đánh giá khách hàng</h2>
 						{product.reviews && product.reviews.length === 0 ? (
 							<p className="text-gray-500 italic">Chưa có đánh giá nào.</p>
 						) : (
@@ -171,7 +191,6 @@ export default function ProductDetail() {
 											</div>
 										</div>
 										<p className="text-gray-600 bg-gray-50 p-3 rounded-lg">{r.comment}</p>
-										<p className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString('vi-VN')}</p>
 									</div>
 								))}
 							</div>
@@ -179,7 +198,7 @@ export default function ProductDetail() {
 					</div>
 				</div>
 
-				{/* Cột phải: Sản phẩm liên quan (ĐÃ THÊM MỚI) */}
+				{/* Cột phải: Sản phẩm liên quan */}
 				<div className="lg:col-span-1">
 					<div className="sticky top-24">
 						<h3 className="text-lg font-bold mb-4 flex items-center gap-2">
