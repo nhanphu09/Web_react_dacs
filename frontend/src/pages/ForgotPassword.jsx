@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import client from "../api/client"; // Use centralized client
 import { toast } from "react-toastify";
 
 const ForgotPassword = () => {
@@ -10,10 +10,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data } = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/auth/forgotpassword`,
-                { email }
-            );
+            const { data } = await client.post("/auth/forgotpassword", { email });
             toast.success(data.data);
         } catch (error) {
             toast.error(

@@ -79,7 +79,7 @@ A full-featured E-commerce application built with the MERN stack (MongoDB, Expre
     Create a `.env` file in the `frontend` directory:
 
     ```env
-    VITE_BACKEND_URL=http://localhost:5000
+    VITE_API_URL=http://localhost:5000/api
     ```
 
 ## Running the Application

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import client from "../api/client"; // Use centralized client
 import { toast } from "react-toastify";
 
 const ResetPassword = () => {
@@ -17,10 +17,9 @@ const ResetPassword = () => {
         }
         setLoading(true);
         try {
-            const { data } = await axios.put(
-                `${import.meta.env.VITE_BACKEND_URL}/api/auth/resetpassword/${token}`,
-                { password }
-            );
+            const { data } = await client.put(`/auth/resetpassword/${token}`, {
+                password,
+            });
             toast.success(data.message);
             navigate("/login");
         } catch (error) {
