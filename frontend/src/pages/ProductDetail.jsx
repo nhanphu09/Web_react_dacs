@@ -142,6 +142,32 @@ export default function ProductDetail() {
 						>
 							Mua ngay
 						</button>
+
+						{/* Nút Yêu thích */}
+						<button
+							onClick={async () => {
+								try {
+									const token = localStorage.getItem("token");
+									if (!token) {
+										toast.error("Vui lòng đăng nhập để thêm vào yêu thích");
+										navigate("/login");
+										return;
+									}
+									await api.post(
+										"/users/wishlist",
+										{ productId: product._id },
+										{ headers: { Authorization: `Bearer ${token}` } }
+									);
+									toast.success("Đã thêm vào yêu thích!");
+								} catch (error) {
+									toast.error(error.response?.data?.message || "Lỗi thêm yêu thích");
+								}
+							}}
+							className="bg-white border border-gray-300 text-gray-500 p-3 rounded-lg hover:bg-gray-50 transition"
+							title="Thêm vào yêu thích"
+						>
+							<Star size={24} />
+						</button>
 					</div>
 
 					{/* Thông số kỹ thuật */}

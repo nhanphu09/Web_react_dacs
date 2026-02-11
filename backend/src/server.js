@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import connectDB from "./config/db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import rateLimit from "express-rate-limit";
 
 // Import Models
 import Brand from "./models/Brand.js";
@@ -44,6 +45,18 @@ app.use(cors(corsOptions));
 
 // Body Parser
 app.use(express.json());
+
+// Rate Limiting
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // limit each IP to 100 requests per windowMs
+	message: "Too many requests from this IP, please try again after 15 minutes",
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply rate limiting to all requests
+app.use(limiter);
 
 app.get("/", (req, res) => res.send("✅ Backend is running!"));
 

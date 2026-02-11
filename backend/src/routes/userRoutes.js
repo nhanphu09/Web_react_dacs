@@ -1,11 +1,20 @@
 import express from "express";
-import { getUsers, updateUserProfile } from "../controllers/userController.js";
+import {
+	getUsers,
+	updateUserProfile,
+	getWishlist,
+	addToWishlist,
+	removeFromWishlist,
+} from "../controllers/userController.js";
 import { adminOnly, protect } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 
 const router = express.Router();
 
 router.put("/profile", protect, updateUserProfile);
+router.get("/wishlist", protect, getWishlist);
+router.post("/wishlist", protect, addToWishlist);
+router.delete("/wishlist/:id", protect, removeFromWishlist);
 
 router.get("/", protect, adminOnly, getUsers);
 

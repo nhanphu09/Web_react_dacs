@@ -81,6 +81,14 @@ export default function Login() {
 					</button>
 				</form>
 
+				<div className="flex justify-end mb-4">
+					<span
+						onClick={() => navigate("/forgot-password")}
+						className="text-sm text-primary font-semibold cursor-pointer hover:underline">
+						Forgot Password?
+					</span>
+				</div>
+
 				<p className="text-center text-gray-600 mt-4 text-sm">
 					Don't have an account?{" "}
 					<span
