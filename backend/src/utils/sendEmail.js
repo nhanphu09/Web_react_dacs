@@ -102,3 +102,5 @@ export const sendOrderEmail = async (email, order) => {
         throw error; // Ném lỗi ra để Controller bắt được
     }
 };
+
+export default sendEmail;
