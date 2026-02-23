@@ -14,7 +14,7 @@ export default function PaymentPage() {
     const MY_BANK = {
         BANK_ID: "MB", // Tên viết tắt ngân hàng (MB, VCB, ACB, VPB, TPB...)
         ACCOUNT_NO: "0077302516666", // Thay số tài khoản của bạn vào đây
-        ACCOUNT_NAME: "NGUYEN VAN PHU", // Tên chủ tài khoản
+        ACCOUNT_NAME: "NGUYEN VAN A", // Tên chủ tài khoản
         TEMPLATE: "compact2" // Giao diện QR (compact, compact2, qr_only, print)
     };
 
