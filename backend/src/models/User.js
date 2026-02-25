@@ -2,6 +2,14 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
+const addressSchema = new mongoose.Schema({
+	name: { type: String, required: true },
+	phone: { type: String, required: true },
+	street: { type: String, required: true },
+	city: { type: String, required: true },
+	isDefault: { type: Boolean, default: false }
+});
+
 const userSchema = new mongoose.Schema(
 	{
 		name: { type: String, default: "Guest" },
@@ -10,6 +18,7 @@ const userSchema = new mongoose.Schema(
 		role: { type: String, enum: ["user", "admin"], default: "user" },
 		locked: { type: Boolean, default: false },
 		wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+		addresses: [addressSchema],
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
 	},

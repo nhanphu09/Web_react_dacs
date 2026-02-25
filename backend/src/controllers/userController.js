@@ -99,3 +99,41 @@ export const removeFromWishlist = async (req, res) => {
 		res.status(500).json({ message: error.message });
 	}
 };
+
+export const getUserAddresses = async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id);
+		if (user) {
+			res.json(user.addresses || []);
+		} else {
+			res.status(404).json({ message: "Không tìm thấy User" });
+		}
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+};
+
+export const addUserAddress = async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id);
+		if (user) {
+			const newAddress = req.body;
+
+			if (newAddress.isDefault) {
+				user.addresses.forEach(addr => addr.isDefault = false);
+			}
+			else if (user.addresses.length === 0) {
+				newAddress.isDefault = true;
+			}
+
+			user.addresses.push(newAddress);
+			await user.save();
+
+			res.status(201).json(user.addresses);
+		} else {
+			res.status(404).json({ message: "Không tìm thấy User" });
+		}
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+};

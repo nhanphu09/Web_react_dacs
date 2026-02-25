@@ -22,18 +22,9 @@ export default function Checkout() {
 	const [orderEmail, setOrderEmail] = useState("");
 	const [paymentMethod, setPaymentMethod] = useState("COD");
 
-	// Dữ liệu sổ địa chỉ (Tạm thời dùng state, sau này có thể nối API)
-	const [addresses, setAddresses] = useState([
-		{
-			id: 1,
-			name: "Nguyễn Văn A",
-			phone: "0987654321",
-			street: "Ký túc xá Đại học Phenikaa, Phường Yên Nghĩa",
-			city: "Quận Hà Đông, Hà Nội",
-			isDefault: true,
-		}
-	]);
-	const [selectedAddressId, setSelectedAddressId] = useState(1);
+	// Dữ liệu sổ địa chỉ
+	const [addresses, setAddresses] = useState([]);
+	const [selectedAddressId, setSelectedAddressId] = useState("");
 	const [isAddingNew, setIsAddingNew] = useState(false);
 	const [newAddress, setNewAddress] = useState({ name: "", phone: "", street: "", city: "", isDefault: false });
 
@@ -51,12 +42,28 @@ export default function Checkout() {
 		// Gán email mặc định nếu có user
 		if (user) {
 			setOrderEmail(user.email || "");
-			// Cập nhật tên vào địa chỉ mặc định đầu tiên nếu muốn
-			setAddresses(prev => {
-				const newArr = [...prev];
-				if (user.name) newArr[0].name = user.name;
-				return newArr;
-			});
+
+			// Lấy địa chỉ từ DB
+			const fetchAddresses = async () => {
+				try {
+					const token = localStorage.getItem("token");
+					if (!token) return;
+					const { data } = await api.get("/users/addresses", {
+						headers: { Authorization: `Bearer ${token}` }
+					});
+
+					setAddresses(data);
+
+					if (data.length > 0) {
+						const defaultAddr = data.find(a => a.isDefault);
+						if (defaultAddr) setSelectedAddressId(defaultAddr._id);
+						else setSelectedAddressId(data[0]._id);
+					}
+				} catch (error) {
+					console.error("Lỗi lấy sổ địa chỉ:", error);
+				}
+			};
+			fetchAddresses();
 		}
 	}, [user, navigate]);
 
@@ -70,25 +77,32 @@ export default function Checkout() {
 	};
 
 	// --- XỬ LÝ LƯU ĐỊA CHỈ MỚI ---
-	const handleSaveNewAddress = (e) => {
+	const handleSaveNewAddress = async (e) => {
 		e.preventDefault();
 		if (!newAddress.name || !newAddress.phone || !newAddress.street || !newAddress.city) {
 			return toast.warn("Vui lòng điền đầy đủ thông tin địa chỉ!");
 		}
 
-		const newId = Date.now();
-		const addressToSave = { ...newAddress, id: newId };
+		try {
+			const token = localStorage.getItem("token");
+			if (!token) return toast.error("Vui lòng đăng nhập!");
 
-		let updatedAddresses = [...addresses];
-		if (addressToSave.isDefault) {
-			updatedAddresses = updatedAddresses.map(addr => ({ ...addr, isDefault: false }));
+			const { data } = await api.post("/users/addresses", newAddress, {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+
+			setAddresses(data);
+
+			const newlyAdded = data[data.length - 1];
+			setSelectedAddressId(newlyAdded._id);
+
+			setIsAddingNew(false);
+			setNewAddress({ name: "", phone: "", street: "", city: "", isDefault: false });
+			toast.success("Đã lưu địa chỉ vào sổ!");
+
+		} catch (error) {
+			toast.error("Lỗi khi lưu địa chỉ: " + error.message);
 		}
-
-		updatedAddresses.push(addressToSave);
-		setAddresses(updatedAddresses);
-		setSelectedAddressId(newId); // Chọn luôn địa chỉ vừa tạo
-		setIsAddingNew(false);
-		setNewAddress({ name: "", phone: "", street: "", city: "", isDefault: false });
 	};
 
 	// --- XỬ LÝ ĐẶT HÀNG ---
@@ -96,7 +110,7 @@ export default function Checkout() {
 		e.preventDefault();
 		if (!orderEmail) return toast.warn("Vui lòng nhập Email nhận thông báo!");
 
-		const selectedAddress = addresses.find(a => a.id === selectedAddressId);
+		const selectedAddress = addresses.find(a => a._id === selectedAddressId);
 		if (!selectedAddress) return toast.error("Vui lòng chọn địa chỉ giao hàng!");
 
 		setLoading(true);
@@ -159,12 +173,12 @@ export default function Checkout() {
 						<div className="space-y-3 mb-4">
 							{addresses.map((addr) => (
 								<div
-									key={addr.id}
-									onClick={() => setSelectedAddressId(addr.id)}
-									className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedAddressId === addr.id ? "border-primary bg-red-50/30" : "border-gray-200 hover:border-red-200"
+									key={addr._id}
+									onClick={() => setSelectedAddressId(addr._id)}
+									className={`relative p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedAddressId === addr._id ? "border-primary bg-red-50/30" : "border-gray-200 hover:border-red-200"
 										}`}
 								>
-									{selectedAddressId === addr.id && (
+									{selectedAddressId === addr._id && (
 										<div className="absolute top-3 right-3 text-primary"><Check size={20} strokeWidth={3} /></div>
 									)}
 									<div className="flex items-center gap-3 mb-1">

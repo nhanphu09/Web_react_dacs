@@ -5,6 +5,8 @@ import {
 	getWishlist,
 	addToWishlist,
 	removeFromWishlist,
+	getUserAddresses,
+	addUserAddress,
 } from "../controllers/userController.js";
 import { adminOnly, protect } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
@@ -15,6 +17,9 @@ router.put("/profile", protect, updateUserProfile);
 router.get("/wishlist", protect, getWishlist);
 router.post("/wishlist", protect, addToWishlist);
 router.delete("/wishlist/:id", protect, removeFromWishlist);
+
+router.get("/addresses", protect, getUserAddresses);
+router.post("/addresses", protect, addUserAddress);
 
 router.get("/", protect, adminOnly, getUsers);
 
