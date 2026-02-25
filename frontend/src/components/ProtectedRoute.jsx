@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthProvider";
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
 	const { user } = useAuth();
-	if (!user) return <Navigate to="/auth/login" replace />;
+	if (!user) return <Navigate to="/login" replace />;
 	if (adminOnly) {
 		const isAdmin = user.isAdmin || user.role === "admin";
 		if (!isAdmin) return <Navigate to="/" replace />;
