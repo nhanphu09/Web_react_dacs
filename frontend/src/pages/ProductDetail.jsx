@@ -20,9 +20,9 @@ export default function ProductDetail() {
 	// Dữ liệu mẫu (Tạm thời cứng để test giao diện, sau này có thể lấy từ product API)
 	const versions = ["1TB", "512GB", "256GB"];
 	const colors = [
-		{ name: "Xanh Đậm", price: 34990000, img: "https://via.placeholder.com/150/000080/FFFFFF?text=Xanh" },
-		{ name: "Cam Vũ Trụ", price: 34990000, img: "https://via.placeholder.com/150/FF8C00/FFFFFF?text=Cam" },
-		{ name: "Bạc", price: 34990000, img: "https://via.placeholder.com/150/C0C0C0/FFFFFF?text=Bac" },
+		{ name: "Xanh Đậm", price: 34990000, img: "https://placehold.co/150x150/000080/FFF?text=Xanh" },
+		{ name: "Cam Vũ Trụ", price: 34990000, img: "https://placehold.co/150x150/FF8C00/FFF?text=Cam" },
+		{ name: "Bạc", price: 34990000, img: "https://placehold.co/150x150/C0C0C0/FFF?text=Bac" },
 	];
 
 	useEffect(() => {
@@ -142,8 +142,8 @@ export default function ProductDetail() {
 									key={ver}
 									onClick={() => setSelectedVersion(ver)}
 									className={`relative px-6 py-3 border rounded-lg font-bold transition-all overflow-hidden ${selectedVersion === ver
-											? "border-red-600 text-red-600 bg-red-50/50"
-											: "border-gray-300 text-gray-700 hover:border-gray-400 bg-white"
+										? "border-red-600 text-red-600 bg-red-50/50"
+										: "border-gray-300 text-gray-700 hover:border-gray-400 bg-white"
 										}`}
 								>
 									{ver}
@@ -169,8 +169,8 @@ export default function ProductDetail() {
 									key={color.name}
 									onClick={() => setSelectedColor(color.name)}
 									className={`relative flex items-center gap-3 p-2 pr-4 border rounded-lg transition-all overflow-hidden bg-white ${selectedColor === color.name
-											? "border-red-600 bg-red-50/30"
-											: "border-gray-300 hover:border-gray-400"
+										? "border-red-600 bg-red-50/30"
+										: "border-gray-300 hover:border-gray-400"
 										}`}
 								>
 									<img src={color.img} alt={color.name} className="w-10 h-10 object-cover rounded bg-gray-100" />
