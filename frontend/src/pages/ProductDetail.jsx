@@ -13,12 +13,29 @@ export default function ProductDetail() {
 	const [qty, setQty] = useState(1);
 	const [loading, setLoading] = useState(true);
 
+	// 👇 THÊM STATE ĐỂ LƯU LỰA CHỌN PHIÊN BẢN VÀ MÀU SẮC
+	const [selectedVersion, setSelectedVersion] = useState("256GB");
+	const [selectedColor, setSelectedColor] = useState("Cam Vũ Trụ");
+
+	// Dữ liệu mẫu (Tạm thời cứng để test giao diện, sau này có thể lấy từ product API)
+	const versions = ["1TB", "512GB", "256GB"];
+	const colors = [
+		{ name: "Xanh Đậm", price: 34990000, img: "https://via.placeholder.com/150/000080/FFFFFF?text=Xanh" },
+		{ name: "Cam Vũ Trụ", price: 34990000, img: "https://via.placeholder.com/150/FF8C00/FFFFFF?text=Cam" },
+		{ name: "Bạc", price: 34990000, img: "https://via.placeholder.com/150/C0C0C0/FFFFFF?text=Bac" },
+	];
+
 	useEffect(() => {
 		const fetchProduct = async () => {
 			try {
 				setLoading(true);
 				const { data } = await api.get(`/products/${id}`);
 				setProduct(data);
+
+				// Nạp ảnh thực tế của sản phẩm vào mảng màu nếu có
+				if (data.image) {
+					colors.forEach(c => c.img = data.images?.[0] || data.image);
+				}
 
 				try {
 					const relatedRes = await api.get(`/products/${id}/related`);
@@ -33,13 +50,17 @@ export default function ProductDetail() {
 		};
 		fetchProduct();
 		window.scrollTo(0, 0);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
 
 	const addToCart = (isBuyNow = false) => {
 		const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-		const existItem = cart.find((x) => x.product === product._id);
 
-		// 🛑 KIỂM TRA TỒN KHO TRƯỚC KHI THÊM
+		// Cập nhật lại logic tìm kiếm trong giỏ: 
+		// Phải phân biệt iPhone 256GB Đen với iPhone 512GB Đen (chúng là 2 dòng khác nhau trong giỏ)
+		const cartItemId = `${product._id}-${selectedVersion}-${selectedColor}`;
+		const existItem = cart.find((x) => x.cartItemId === cartItemId);
+
 		const currentQtyInCart = existItem ? existItem.qty : 0;
 		if (currentQtyInCart + qty > product.stock) {
 			toast.error(`Rất tiếc, kho chỉ còn ${product.stock} sản phẩm!`);
@@ -50,8 +71,10 @@ export default function ProductDetail() {
 			existItem.qty += qty;
 		} else {
 			cart.push({
+				cartItemId: cartItemId, // ID mới bao gồm cả màu và bản
 				product: product._id,
-				title: product.title,
+				// 👇 Gắn thêm Màu và Phiên bản vào tên để hiển thị ở giỏ hàng và Email
+				title: `${product.title} (${selectedVersion} - ${selectedColor})`,
 				image: product.images?.[0] || product.image,
 				price: product.price,
 				stock: product.stock,
@@ -73,7 +96,6 @@ export default function ProductDetail() {
 
 	return (
 		<div className="max-w-7xl mx-auto p-4 md:p-8">
-			{/* Breadcrumb */}
 			<div className="flex items-center text-sm text-gray-500 mb-6 gap-2">
 				<Link to="/" className="hover:text-primary">Trang chủ</Link>
 				<ChevronRight size={14} />
@@ -83,8 +105,8 @@ export default function ProductDetail() {
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-				{/* Ảnh */}
-				<div className="bg-white rounded-2xl shadow-sm border p-6 flex items-center justify-center h-[400px]">
+				{/* ẢNH SẢN PHẨM */}
+				<div className="bg-white rounded-2xl shadow-sm border p-6 flex items-center justify-center h-[500px] sticky top-24">
 					<img
 						src={product.images && product.images.length > 0 ? product.images[0] : product.image}
 						alt={product.title}
@@ -92,7 +114,7 @@ export default function ProductDetail() {
 					/>
 				</div>
 
-				{/* Thông tin */}
+				{/* THÔNG TIN */}
 				<div>
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">{product.title}</h1>
 
@@ -105,11 +127,69 @@ export default function ProductDetail() {
 						<span className="text-sm text-gray-500">({product.numReviews} đánh giá) | Đã bán: {product.sold}</span>
 					</div>
 
-					<p className="text-3xl font-bold text-primary mb-2">
+					<p className="text-3xl font-bold text-primary mb-6">
 						{product.price?.toLocaleString("vi-VN")} đ
 					</p>
 
-					{/* 🟢 HIỂN THỊ TRẠNG THÁI KHO */}
+					{/* ========================================================= */}
+					{/* 🟢 KHU VỰC CHỌN PHIÊN BẢN (MỚI THÊM) */}
+					{/* ========================================================= */}
+					<div className="mb-6">
+						<h3 className="text-lg font-bold mb-3 text-gray-800">Phiên bản</h3>
+						<div className="flex flex-wrap gap-3">
+							{versions.map(ver => (
+								<button
+									key={ver}
+									onClick={() => setSelectedVersion(ver)}
+									className={`relative px-6 py-3 border rounded-lg font-bold transition-all overflow-hidden ${selectedVersion === ver
+											? "border-red-600 text-red-600 bg-red-50/50"
+											: "border-gray-300 text-gray-700 hover:border-gray-400 bg-white"
+										}`}
+								>
+									{ver}
+									{/* Dấu Tích Đỏ góc phải */}
+									{selectedVersion === ver && (
+										<div className="absolute top-0 right-0 bg-red-600 text-white rounded-bl-lg px-1 py-0.5">
+											<Check size={12} strokeWidth={4} />
+										</div>
+									)}
+								</button>
+							))}
+						</div>
+					</div>
+
+					{/* ========================================================= */}
+					{/* 🟢 KHU VỰC CHỌN MÀU SẮC (MỚI THÊM) */}
+					{/* ========================================================= */}
+					<div className="mb-8">
+						<h3 className="text-lg font-bold mb-3 text-gray-800">Màu sắc</h3>
+						<div className="flex flex-wrap gap-3">
+							{colors.map(color => (
+								<button
+									key={color.name}
+									onClick={() => setSelectedColor(color.name)}
+									className={`relative flex items-center gap-3 p-2 pr-4 border rounded-lg transition-all overflow-hidden bg-white ${selectedColor === color.name
+											? "border-red-600 bg-red-50/30"
+											: "border-gray-300 hover:border-gray-400"
+										}`}
+								>
+									<img src={color.img} alt={color.name} className="w-10 h-10 object-cover rounded bg-gray-100" />
+									<div className="text-left">
+										<div className="font-bold text-sm text-gray-800">{color.name}</div>
+										<div className="text-xs text-gray-500 font-medium">{product.price?.toLocaleString("vi-VN")}đ</div>
+									</div>
+									{/* Dấu Tích Đỏ góc phải */}
+									{selectedColor === color.name && (
+										<div className="absolute top-0 right-0 bg-red-600 text-white rounded-bl-lg px-1 py-0.5">
+											<Check size={12} strokeWidth={4} />
+										</div>
+									)}
+								</button>
+							))}
+						</div>
+					</div>
+					{/* ========================================================= */}
+
 					<p className={`mb-6 font-medium ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
 						{product.stock > 0 ? `Còn hàng (${product.stock} sản phẩm)` : "Đã hết hàng"}
 					</p>
@@ -130,7 +210,7 @@ export default function ProductDetail() {
 						</div>
 					)}
 
-					{/* 👇 CỤM NÚT BẤM XỬ LÝ THEO TỒN KHO */}
+					{/* NÚT BẤM */}
 					<div className="flex items-center gap-4 mb-8">
 						{product.stock > 0 ? (
 							<>
@@ -138,24 +218,15 @@ export default function ProductDetail() {
 									value={qty}
 									onChange={setQty}
 									onDecrease={() => qty > 1 && setQty(qty - 1)}
-									// 🛑 Chặn không cho bấm nút "+" nếu vượt quá kho
 									onIncrease={() => {
 										if (qty < product.stock) setQty(qty + 1);
 										else toast.warning(`Kho chỉ còn tối đa ${product.stock} sản phẩm!`);
 									}}
 								/>
-
-								<button
-									onClick={() => addToCart(false)}
-									className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-bold text-lg hover:bg-gray-300 transition"
-								>
+								<button onClick={() => addToCart(false)} className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-bold text-lg hover:bg-gray-300 transition">
 									Thêm vào giỏ
 								</button>
-
-								<button
-									onClick={() => addToCart(true)}
-									className="flex-1 bg-primary text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition shadow-lg shadow-red-200"
-								>
+								<button onClick={() => addToCart(true)} className="flex-1 bg-primary text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-600 transition shadow-lg shadow-red-200">
 									Mua ngay
 								</button>
 							</>
@@ -165,28 +236,16 @@ export default function ProductDetail() {
 							</div>
 						)}
 
-						{/* Nút Yêu thích (Luôn hiện để khách có thể lưu lại chờ hàng về) */}
 						<button
 							onClick={async () => {
 								try {
 									const token = localStorage.getItem("token");
-									if (!token) {
-										toast.error("Vui lòng đăng nhập để thêm vào yêu thích");
-										navigate("/login");
-										return;
-									}
-									await api.post(
-										"/users/wishlist",
-										{ productId: product._id },
-										{ headers: { Authorization: `Bearer ${token}` } }
-									);
+									if (!token) return toast.error("Vui lòng đăng nhập"), navigate("/login");
+									await api.post("/users/wishlist", { productId: product._id }, { headers: { Authorization: `Bearer ${token}` } });
 									toast.success("Đã thêm vào yêu thích!");
-								} catch (error) {
-									toast.error(error.response?.data?.message || "Lỗi thêm yêu thích");
-								}
+								} catch (error) { toast.error("Lỗi thêm yêu thích"); }
 							}}
 							className="bg-white border border-gray-300 text-gray-500 p-3 rounded-lg hover:bg-red-50 hover:text-red-500 transition"
-							title="Thêm vào yêu thích"
 						>
 							<Star size={24} />
 						</button>
@@ -211,9 +270,8 @@ export default function ProductDetail() {
 				</div>
 			</div>
 
-			{/* Mô tả, Đánh giá & Sản phẩm liên quan */}
+			{/* CÁC PHẦN DƯỚI (Mô tả, Review, Sản phẩm liên quan) GIỮ NGUYÊN */}
 			<div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-				{/* Cột trái: Mô tả */}
 				<div className="lg:col-span-2 space-y-8">
 					<div className="bg-white rounded-xl shadow-sm p-6 border">
 						<h2 className="text-xl font-bold mb-4 border-b pb-2">Mô tả sản phẩm</h2>
@@ -233,9 +291,7 @@ export default function ProductDetail() {
 										<div className="flex items-center justify-between mb-2">
 											<p className="font-bold text-gray-800">{r.name}</p>
 											<div className="flex text-yellow-400">
-												{[...Array(5)].map((_, i) => (
-													<Star key={i} size={14} fill={i < r.rating ? "currentColor" : "none"} className={i < r.rating ? "" : "text-gray-300"} />
-												))}
+												{[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < r.rating ? "currentColor" : "none"} className={i < r.rating ? "" : "text-gray-300"} />)}
 											</div>
 										</div>
 										<p className="text-gray-600 bg-gray-50 p-3 rounded-lg">{r.comment}</p>
@@ -246,38 +302,23 @@ export default function ProductDetail() {
 					</div>
 				</div>
 
-				{/* Cột phải: Sản phẩm liên quan */}
 				<div className="lg:col-span-1">
 					<div className="sticky top-24">
 						<h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-							<span className="w-1 h-6 bg-primary rounded-full block"></span>
-							Sản phẩm liên quan
+							<span className="w-1 h-6 bg-primary rounded-full block"></span> Sản phẩm liên quan
 						</h3>
-
 						{related.length === 0 ? (
 							<p className="text-gray-500 text-sm">Không có sản phẩm tương tự.</p>
 						) : (
 							<div className="grid grid-cols-1 gap-4">
 								{related.map((item) => (
-									<Link
-										to={`/product/${item._id}`}
-										key={item._id}
-										className="group flex gap-4 bg-white p-3 rounded-xl border hover:shadow-md transition"
-									>
+									<Link to={`/product/${item._id}`} key={item._id} className="group flex gap-4 bg-white p-3 rounded-xl border hover:shadow-md transition">
 										<div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-											<img
-												src={item.images?.[0] || item.image}
-												alt={item.title}
-												className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-											/>
+											<img src={item.images?.[0] || item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
 										</div>
 										<div className="flex-1 min-w-0">
-											<h4 className="font-medium text-gray-800 truncate group-hover:text-primary transition">
-												{item.title}
-											</h4>
-											<p className="text-red-500 font-bold mt-1">
-												{item.price?.toLocaleString("vi-VN")} đ
-											</p>
+											<h4 className="font-medium text-gray-800 truncate group-hover:text-primary transition">{item.title}</h4>
+											<p className="text-red-500 font-bold mt-1">{item.price?.toLocaleString("vi-VN")} đ</p>
 											<div className="flex items-center gap-1 mt-1">
 												<Star size={12} fill="currentColor" className="text-yellow-400" />
 												<span className="text-xs text-gray-500">{item.rating || 0}</span>

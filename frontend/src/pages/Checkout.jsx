@@ -224,7 +224,7 @@ export default function Checkout() {
 
 						<div className="space-y-4 max-h-60 overflow-y-auto pr-2 mb-4">
 							{cart.map(item => (
-								<div key={item.product} className="flex justify-between items-center text-sm">
+								<div key={item.cartItemId} className="flex justify-between items-center text-sm">
 									<div className="flex items-center gap-2">
 										<span className="font-bold text-gray-500">{item.qty}x</span>
 										<span className="text-gray-800 truncate max-w-[150px]" title={item.title}>{item.title}</span>

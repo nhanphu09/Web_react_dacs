@@ -21,17 +21,17 @@ export default function Cart() {
 	}, []);
 
 	// Cập nhật số lượng
-	const updateQty = (productId, newQty) => {
+	const updateQty = (cartItemId, newQty) => {
 		const updatedCart = cart.map((item) =>
-			item.product === productId ? { ...item, qty: Math.max(1, newQty) } : item
+			item.cartItemId === cartItemId ? { ...item, qty: Math.max(1, newQty) } : item
 		);
 		setCart(updatedCart);
 		localStorage.setItem("cart", JSON.stringify(updatedCart));
 	};
 
 	// Xóa sản phẩm
-	const removeItem = (productId) => {
-		const updatedCart = cart.filter((item) => item.product !== productId);
+	const removeItem = (cartItemId) => {
+		const updatedCart = cart.filter((item) => item.cartItemId !== cartItemId);
 		setCart(updatedCart);
 		localStorage.setItem("cart", JSON.stringify(updatedCart));
 		toast.info("Đã xóa sản phẩm khỏi giỏ.");
@@ -99,7 +99,7 @@ export default function Cart() {
 					{/* Danh sách sản phẩm */}
 					<div className="flex-1 space-y-4">
 						{cart.map((item) => (
-							<div key={item.product} className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm border">
+							<div key={item.cartItemId} className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl shadow-sm border">
 								<img
 									src={item.image}
 									alt={item.title}
@@ -115,12 +115,12 @@ export default function Cart() {
 								<div className="flex items-center gap-4">
 									<QuantityInput
 										value={item.qty}
-										onChange={(val) => updateQty(item.product, val)}
-										onIncrease={() => updateQty(item.product, item.qty + 1)}
-										onDecrease={() => updateQty(item.product, item.qty - 1)}
+										onChange={(val) => updateQty(item.cartItemId, val)}
+										onIncrease={() => updateQty(item.cartItemId, item.qty + 1)}
+										onDecrease={() => updateQty(item.cartItemId, item.qty - 1)}
 									/>
 									<button
-										onClick={() => removeItem(item.product)}
+										onClick={() => removeItem(item.cartItemId)}
 										className="text-gray-400 hover:text-red-600 transition p-2">
 										<Trash2 size={20} />
 									</button>
