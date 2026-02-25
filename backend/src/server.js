@@ -56,7 +56,7 @@ const limiter = rateLimit({
 });
 
 // Apply rate limiting to all requests
-app.use(limiter);
+//app.use(limiter);
 
 app.get("/", (req, res) => res.send("✅ Backend is running!"));
 

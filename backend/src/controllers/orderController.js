@@ -58,7 +58,7 @@ export const getOrders = async (req, res) => {
 	}
 };
 
-// --- 2. Tạo đơn hàng mới (ĐÃ THÊM LOG GỬI EMAIL) ---
+// --- 2. Tạo đơn hàng mới (ĐÃ THÊM CHECK TỒN KHO) ---
 export const createOrder = async (req, res) => {
 	try {
 		const { products, totalPrice, shippingAddress, paymentMethod } = req.body;
@@ -67,6 +67,26 @@ export const createOrder = async (req, res) => {
 			return res.status(400).json({ message: "Không có sản phẩm nào trong giỏ hàng" });
 		}
 
+		// ==========================================
+		// 🛑 BƯỚC 1: KIỂM TRA TỒN KHO TRƯỚC KHI TẠO ĐƠN
+		// ==========================================
+		for (const item of products) {
+			const productDB = await Product.findById(item.product);
+
+			if (!productDB) {
+				return res.status(404).json({ message: `Không tìm thấy sản phẩm.` });
+			}
+
+			// Nếu số lượng khách đặt LỚN HƠN số lượng trong kho -> Chặn lại ngay!
+			if (item.quantity > productDB.stock) {
+				return res.status(400).json({
+					message: `Sản phẩm "${productDB.title}" chỉ còn ${productDB.stock} cái trong kho. Vui lòng giảm số lượng!`
+				});
+			}
+		}
+		// ==========================================
+
+		// BƯỚC 2: TẠO ĐƠN HÀNG (Nếu qua được bước kiểm tra ở trên)
 		const order = new Order({
 			user: req.user._id,
 			products,
@@ -77,7 +97,7 @@ export const createOrder = async (req, res) => {
 
 		const createdOrder = await order.save();
 
-		// Trừ tồn kho & Tăng lượt bán
+		// BƯỚC 3: TRỪ TỒN KHO & TĂNG LƯỢT BÁN
 		for (const item of createdOrder.products) {
 			await Product.updateOne(
 				{ _id: item.product },
@@ -90,24 +110,21 @@ export const createOrder = async (req, res) => {
 			);
 		}
 
-		// 📧 BẮT ĐẦU QUY TRÌNH GỬI EMAIL 
+		// BƯỚC 4: GỬI EMAIL NGẦM (Fire and Forget)
 		const emailTo = shippingAddress.email || req.user.email;
 
-		// Populate đơn hàng để lấy tên sản phẩm
 		Order.findById(createdOrder._id).populate("products.product")
 			.then(populatedOrder => {
-				console.log(`🚀 Đang gửi email ngầm cho: ${emailTo}...`);
 				return sendOrderEmail(emailTo, populatedOrder);
 			})
-			.then(() => console.log("✅ Email đã được gửi thành công (Background Job)"))
 			.catch(err => console.error("❌ Gửi email thất bại:", err.message));
 
-		// ============================================================
-
+		// TRẢ VỀ KẾT QUẢ THÀNH CÔNG
 		res.status(201).json(createdOrder);
+
 	} catch (err) {
 		console.error("Lỗi tạo đơn hàng:", err);
-		res.status(400).json({ message: err.message });
+		res.status(500).json({ message: err.message });
 	}
 };
 
