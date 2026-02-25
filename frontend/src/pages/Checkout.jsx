@@ -46,8 +46,11 @@ export default function Checkout() {
 			// Lấy địa chỉ từ DB
 			const fetchAddresses = async () => {
 				try {
-					const token = localStorage.getItem("token");
-					if (!token) return;
+					// 👇 Lấy token từ bên trong cục 'user'
+					const token = JSON.parse(localStorage.getItem("user"))?.token;
+
+					if (!token) return; // Nếu không có token thì dừng luôn
+
 					const { data } = await api.get("/users/addresses", {
 						headers: { Authorization: `Bearer ${token}` }
 					});
@@ -84,9 +87,14 @@ export default function Checkout() {
 		}
 
 		try {
-			const token = localStorage.getItem("token");
-			if (!token) return toast.error("Vui lòng đăng nhập!");
+			// 👇 Sửa dòng lấy token ở đây
+			const token = JSON.parse(localStorage.getItem("user"))?.token;
 
+			if (!token) {
+				return toast.error("Vui lòng đăng nhập để lưu địa chỉ!");
+			}
+
+			// 🟢 GỌI API LƯU ĐỊA CHỈ VÀO DATABASE
 			const { data } = await api.post("/users/addresses", newAddress, {
 				headers: { Authorization: `Bearer ${token}` }
 			});
