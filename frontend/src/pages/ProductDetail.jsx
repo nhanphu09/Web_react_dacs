@@ -13,6 +13,10 @@ export default function ProductDetail() {
 	const [qty, setQty] = useState(1);
 	const [loading, setLoading] = useState(true);
 
+	// State cho đánh giá sản phẩm
+	const [rating, setRating] = useState(5);
+	const [comment, setComment] = useState("");
+
 	// 👇 THÊM STATE ĐỂ LƯU LỰA CHỌN PHIÊN BẢN VÀ MÀU SẮC
 	const [selectedVersion, setSelectedVersion] = useState("256GB");
 	const [selectedColor, setSelectedColor] = useState("Cam Vũ Trụ");
@@ -88,6 +92,37 @@ export default function ProductDetail() {
 			navigate("/checkout");
 		} else {
 			toast.success(`Đã thêm ${qty} sản phẩm vào giỏ!`);
+		}
+	};
+
+	const submitReviewHandler = async (e) => {
+		e.preventDefault();
+		if (!comment.trim()) {
+			return toast.warning("Vui lòng nhập nội dung đánh giá!");
+		}
+		try {
+			// Lấy token chuẩn từ localStorage giống bên giỏ hàng / checkout
+			const tokenInfo = localStorage.getItem("user") || localStorage.getItem("token");
+			let token = "";
+			if (tokenInfo && tokenInfo.includes("token")) {
+				token = JSON.parse(tokenInfo).token;
+			} else {
+				token = tokenInfo; // fallback
+			}
+
+			if (!token) return toast.error("Vui lòng đăng nhập để đánh giá!");
+
+			await api.post(`/products/${id}/reviews`, { rating, comment }, {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			toast.success("Đánh giá thành công!");
+			setComment("");
+
+			// Load lại data sản phẩm để hiện review mới nhất
+			const { data } = await api.get(`/products/${id}`);
+			setProduct(data);
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Lỗi gửi đánh giá");
 		}
 	};
 
@@ -282,6 +317,36 @@ export default function ProductDetail() {
 
 					<div className="bg-white rounded-xl shadow-sm p-6 border">
 						<h2 className="text-xl font-bold mb-6">Đánh giá khách hàng</h2>
+
+						{/* Form thả đánh giá (Dành cho khách truy cập) */}
+						<div className="mb-8 border-b pb-6">
+							<form onSubmit={submitReviewHandler} className="bg-gray-50 p-4 rounded-lg border">
+								<h3 className="font-bold text-lg mb-3">Viết đánh giá của bạn</h3>
+								<div className="flex flex-col gap-3">
+									<select
+										value={rating}
+										onChange={(e) => setRating(Number(e.target.value))}
+										className="border border-gray-300 p-2 rounded-lg outline-none max-w-[200px] font-medium"
+									>
+										<option value="5">5 - Rất tốt</option>
+										<option value="4">4 - Tốt</option>
+										<option value="3">3 - Bình thường</option>
+										<option value="2">2 - Kém</option>
+										<option value="1">1 - Rất tệ</option>
+									</select>
+									<textarea
+										value={comment}
+										className="border border-gray-300 w-full p-3 rounded-lg outline-none resize-none focus:ring-2 focus:ring-primary/50"
+										rows={3}
+										placeholder="Cảm nhận của bạn về sản phẩm..."
+										onChange={(e) => setComment(e.target.value)}
+									></textarea>
+									<button type="submit" className="bg-primary text-white font-bold px-6 py-2 rounded-lg self-start hover:bg-red-600 transition shadow">
+										Gửi đánh giá
+									</button>
+								</div>
+							</form>
+						</div>
 						{product.reviews && product.reviews.length === 0 ? (
 							<p className="text-gray-500 italic">Chưa có đánh giá nào.</p>
 						) : (

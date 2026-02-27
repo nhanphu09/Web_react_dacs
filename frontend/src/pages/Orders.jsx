@@ -1,9 +1,11 @@
 import { Package } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import ProfileSidebar from "../components/ProfileSidebar";
 
 export default function Orders() {
+	const navigate = useNavigate();
 	const [orders, setOrders] = useState([]);
 	const [loading, setLoading] = useState(true);
 
@@ -73,6 +75,31 @@ export default function Orders() {
 										<span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}`}>
 											{order.status}
 										</span>
+									</div>
+
+									{/* Báo trạng thái giao hàng / Nút Đánh giá */}
+									<div className="px-6 pt-4">
+										{order.status === "Delivered" ? (
+											<div className="bg-green-100 p-4 rounded-lg mb-2 border border-green-500">
+												<p className="text-green-700 font-bold">🎉 Đơn hàng đã được giao thành công!</p>
+												<p className="text-sm text-green-800">Bạn hãy dành chút thời gian đánh giá sản phẩm để nhận ưu đãi nhé.</p>
+												<div className="flex flex-wrap gap-2 mt-3">
+													{order.products.map((item, idx) => (
+														<button
+															key={idx}
+															onClick={() => navigate(`/review/${item.product?._id}`)}
+															className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition"
+														>
+															Đánh giá {item.product?.title}
+														</button>
+													))}
+												</div>
+											</div>
+										) : order.status === "Shipped" ? (
+											<div className="bg-yellow-100 p-4 rounded-lg mb-2 border border-yellow-400">
+												<p className="text-yellow-800 font-bold">🚚 Đơn hàng của bạn đang được vận chuyển...</p>
+											</div>
+										) : null}
 									</div>
 
 									{/* Danh sách sản phẩm */}

@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 export const getProducts = async (req, res) => {
 	try {
@@ -168,6 +169,19 @@ export const createProductReview = async (req, res) => {
 	const { rating, comment } = req.body;
 
 	try {
+		// Kiểm tra khách hàng đã mua sản phẩm này và đã được giao hàng (Delivered) chưa
+		const order = await Order.findOne({
+			user: req.user._id,
+			status: "Delivered",
+			"products.product": req.params.id,
+		});
+
+		if (!order) {
+			return res.status(400).json({
+				message: "Bạn chỉ có thể đánh giá những sản phẩm đã mua và được giao hàng thành công."
+			});
+		}
+
 		const product = await Product.findById(req.params.id);
 
 		if (product) {
